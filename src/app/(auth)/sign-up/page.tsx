@@ -3,10 +3,31 @@ import { GalleryVerticalEnd } from 'lucide-react'
 
 import { Form } from '@/components/form'
 import { Button } from '@/components/ui/button'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm } from 'react-hook-form'
+import { z } from 'zod'
+
+const signUpSchema = z.object(
+  {
+    name: z.string(),
+    email: z.string().email(),
+    password: z.string(),
+    confirmPassword: z.string(),
+  },
+  { required_error: 'Esse campo é obrigatório!' },
+)
+
+type SignUpData = z.infer<typeof signUpSchema>
 
 export default function LoginPage() {
-  const signUpForm = useForm()
+  const signUpForm = useForm<SignUpData>({
+    resolver: zodResolver(signUpSchema),
+  })
+  const { handleSubmit } = signUpForm
+
+  async function handleSignUp(data: SignUpData) {
+    console.log(data)
+  }
 
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
@@ -22,7 +43,10 @@ export default function LoginPage() {
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
             <FormProvider {...signUpForm}>
-              <form className="flex flex-col gap-6">
+              <form
+                className="flex flex-col gap-6"
+                onSubmit={handleSubmit(handleSignUp)}
+              >
                 <div className="flex flex-col items-center gap-2 text-center">
                   <h1 className="text-2xl font-bold">Crie uma conta</h1>
                   <p className="text-muted-foreground text-sm text-balance">
