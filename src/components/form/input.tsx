@@ -11,9 +11,7 @@ export function Input({ name, ...props }: InputProps) {
   const { control } = useFormContext()
   const { field } = useController({
     name,
-    control
+    control,
   })
-  return (
-    <InputLib{...props} {...field} />
-  )
+  return <InputLib {...props} {...field} />
 }
