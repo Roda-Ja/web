@@ -1,12 +1,14 @@
 'use client'
 
 import {
+  Building2,
   ClockFading,
   LayoutDashboard,
   MapPin,
   ScrollText,
   ShoppingBasket,
   ShoppingCart,
+  Users,
 } from 'lucide-react'
 import * as React from 'react'
 
@@ -24,7 +26,7 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar'
 
-// This is sample data.
+// Dados de navegação com ícones corretos
 const data = {
   user: {
     name: 'shadcn',
@@ -34,30 +36,40 @@ const data = {
   navMain: [
     {
       title: 'Painel Administrativo',
-      url: '#',
+      url: '/dashboard',
       icon: LayoutDashboard,
     },
     {
       title: 'Histórico de Pedidos',
-      url: '#',
+      url: '/orders/history',
       icon: ClockFading,
     },
   ],
   system: [
     {
       name: 'Pedidos',
-      url: '#',
+      url: '/orders',
       icon: ShoppingCart,
     },
     {
       name: 'Produtos',
-      url: '#',
+      url: '/products',
       icon: ShoppingBasket,
     },
     {
       name: 'Relatórios',
-      url: '#',
+      url: '/reports',
       icon: ScrollText,
+    },
+    {
+      name: 'Motoristas',
+      url: '/drivers',
+      icon: Users,
+    },
+    {
+      name: 'Estabelecimentos',
+      url: '/establishments',
+      icon: Building2,
     },
   ],
 }

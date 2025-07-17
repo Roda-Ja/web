@@ -1,8 +1,7 @@
-"use client"
+'use client'
 
-import {
-  type LucideIcon
-} from "lucide-react"
+import { type LucideIcon } from 'lucide-react'
+import Link from 'next/link'
 
 import {
   SidebarGroup,
@@ -10,8 +9,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar
-} from "@/components/ui/sidebar"
+} from '@/components/ui/sidebar'
+import { useNavigationStore } from '@/lib/stores/navigation-store'
 
 export function NavProjects({
   projects,
@@ -22,20 +21,29 @@ export function NavProjects({
     icon: LucideIcon
   }[]
 }) {
-  const { isMobile } = useSidebar()
+  const { isActiveRoute } = useNavigationStore()
 
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Sistema PDV</SidebarGroupLabel>
       <SidebarMenu>
-        {projects.map((item) => (
-          <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton tooltip={item.name}>
-                <item.icon />
-                <span>{item.name}</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        ))}
+        {projects.map((item) => {
+          const isActive = isActiveRoute(item.url)
+          return (
+            <SidebarMenuItem key={item.name}>
+              <SidebarMenuButton
+                tooltip={item.name}
+                isActive={isActive}
+                asChild
+              >
+                <Link href={item.url}>
+                  <item.icon />
+                  <span>{item.name}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )
+        })}
       </SidebarMenu>
     </SidebarGroup>
   )
