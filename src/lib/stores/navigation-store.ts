@@ -48,8 +48,8 @@ const allRoutes: NavigationItem[] = [
     icon: undefined,
     children: [
       {
-        title: 'Todos os Pedidos',
-        path: '/orders/all',
+        title: 'Histórico de Pedidos',
+        path: '/orders/history',
       },
       {
         title: 'Pedidos Pendentes',
