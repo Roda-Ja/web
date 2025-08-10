@@ -68,13 +68,13 @@ export default function Page() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[270px] w-full">
+              <div className="w-full h-48 sm:h-56 md:h-64 lg:h-72 xl:h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={earningsData}
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                   >
-                    <XAxis dataKey="name" />
+                    <XAxis dataKey="name" interval="preserveStartEnd" minTickGap={8} />
                     <YAxis domain={[0, 4000]} tickCount={11} />
                     <Tooltip formatter={(value) => `R$ ${value}`} />
                     <Legend />
@@ -118,13 +118,13 @@ export default function Page() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[250px] w-full">
+              <div className="w-full h-48 sm:h-56 md:h-64 lg:h-72 xl:h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={userOverviewData}
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                   >
-                    <XAxis dataKey="name" />
+                    <XAxis dataKey="name" interval="preserveStartEnd" minTickGap={8} />
                     <YAxis />
                     <Tooltip />
                     <Legend />
