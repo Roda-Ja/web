@@ -28,7 +28,10 @@ export default function LoginPage() {
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
-          <a href="#" className="flex items-center gap-2 font-medium">
+          <a
+            href="#"
+            className="flex items-center gap-2 font-medium"
+          >
             <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
               <GalleryVerticalEnd className="size-4" />
             </div>
@@ -79,13 +82,19 @@ export default function LoginPage() {
                     <Form.ErrorMessage field="password" />
                   </Form.Field>
 
-                  <Button type="submit" className="w-full">
+                  <Button
+                    type="submit"
+                    className="w-full"
+                  >
                     Entrar
                   </Button>
                 </div>
                 <div className="text-center text-sm">
                   Não tem uma conta?
-                  <a href="#" className="underline underline-offset-4">
+                  <a
+                    href="/sign-up"
+                    className="underline underline-offset-4"
+                  >
                     Cadastre-se
                   </a>
                 </div>
