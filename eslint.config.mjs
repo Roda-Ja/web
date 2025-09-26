@@ -31,6 +31,7 @@ export default [
     rules: {
       ...pluginTs.configs.recommended.rules,
       ...pluginPrettier.configs.recommended.rules,
+      'no-unused-vars': 'off',
       'prettier/prettier': [
         'error',
         {
