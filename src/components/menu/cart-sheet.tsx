@@ -25,10 +25,11 @@ export function CartSheet() {
           variant="outline"
           size="icon"
           aria-label="Abrir carrinho"
+          className="relative"
         >
           <ShoppingCart />
           {totalItems() > 0 && (
-            <span className="bg-primary text-primary-foreground absolute top-2 -right-2 inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-semibold">
+            <span className="bg-primary text-primary-foreground absolute -top-1 -right-1 inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-semibold">
               {totalItems()}
             </span>
           )}

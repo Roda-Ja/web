@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Product } from '@/components/menu/product-card'
+import type { Product } from '@/lib/data/establishments'
 
 export type CartItem = {
   product: Product

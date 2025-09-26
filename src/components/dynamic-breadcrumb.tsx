@@ -14,12 +14,10 @@ export function DynamicBreadcrumb() {
   const pathname = usePathname()
   const { currentBreadcrumb, setCurrentPath } = useNavigationStore()
 
-  // Atualizar o caminho atual quando a URL mudar
   useEffect(() => {
     setCurrentPath(pathname)
   }, [pathname, setCurrentPath])
 
-  // Não renderizar breadcrumb se estiver vazio (página inicial)
   if (currentBreadcrumb.length === 0) {
     return null
   }

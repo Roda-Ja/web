@@ -1,8 +1,18 @@
 'use client'
 import { GalleryVerticalEnd } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 import { Form } from '@/components/form'
 import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { useAuthStore } from '@/lib/stores/auth-store'
+import { getAllEstablishments } from '@/lib/data/establishments'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm } from 'react-hook-form'
 import z from 'zod'
@@ -15,13 +25,52 @@ const signInSchema = z.object({
 type SignInData = z.infer<typeof signInSchema>
 
 export default function LoginPage() {
+  const router = useRouter()
+  const setUser = useAuthStore((state) => state.setUser)
+  const establishments = getAllEstablishments()
+
   const signInForm = useForm<SignInData>({
     resolver: zodResolver(signInSchema),
   })
   const { handleSubmit } = signInForm
 
   async function handleSignIn(data: SignInData) {
-    console.log(data)
+    // Simular login - redirecionar para dashboard
+    setUser({
+      id: '1',
+      name: 'Roda Ja Master',
+      email: data.email,
+      role: 'master',
+      establishmentId: undefined, // Master não tem estabelecimento específico
+    })
+    router.push('/dashboard')
+  }
+
+  const handleQuickLogin = (
+    role: 'master' | 'establishment_admin',
+    establishmentId?: string,
+    establishmentName?: string,
+  ) => {
+    if (role === 'master') {
+      setUser({
+        id: '1',
+        name: 'Roda Ja Master',
+        email: 'master@rodaja.com',
+        role: 'master',
+        establishmentId: undefined, // Master não tem estabelecimento específico
+      })
+      router.push('/dashboard')
+    } else {
+      const establishment = establishments.find((e) => e.id === establishmentId)
+      setUser({
+        id: establishmentId || '2',
+        name: `Admin ${establishmentName}`,
+        email: `admin@${establishmentName?.toLowerCase().replace(/\s+/g, '')}.com`,
+        role: 'establishment_admin',
+        establishmentId: establishmentId,
+      })
+      router.push(`/establishment/${establishment?.slug}/cardapio`)
+    }
   }
 
   return (
@@ -101,6 +150,73 @@ export default function LoginPage() {
               </form>
             </FormProvider>
           </div>
+        </div>
+
+        {/* Acesso Rápido para Teste */}
+        <div className="mt-8">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center text-lg">
+                Acesso Rápido para Teste
+              </CardTitle>
+              <CardDescription className="text-center">
+                Escolha um tipo de usuário para testar o sistema
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Master Admin */}
+              <div className="flex items-center justify-between rounded-lg border p-3">
+                <div>
+                  <h3 className="text-sm font-semibold">Master Admin</h3>
+                  <p className="text-muted-foreground text-xs">
+                    Acesso total ao sistema
+                  </p>
+                </div>
+                <Button
+                  onClick={() => handleQuickLogin('master')}
+                  variant="outline"
+                  size="sm"
+                >
+                  Entrar como Roda Ja Master
+                </Button>
+              </div>
+
+              {/* Establishment Admins */}
+              <div className="space-y-2">
+                <h4 className="text-muted-foreground text-xs font-medium">
+                  Administradores de Estabelecimento:
+                </h4>
+                {establishments.slice(0, 2).map((establishment) => (
+                  <div
+                    key={establishment.id}
+                    className="flex items-center justify-between rounded border p-2"
+                  >
+                    <div>
+                      <h4 className="text-sm font-medium">
+                        {establishment.name}
+                      </h4>
+                      <p className="text-muted-foreground text-xs">
+                        Acesso limitado ao estabelecimento
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() =>
+                        handleQuickLogin(
+                          'establishment_admin',
+                          establishment.id,
+                          establishment.name,
+                        )
+                      }
+                      variant="outline"
+                      size="sm"
+                    >
+                      Entrar
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
       <div className="bg-muted relative hidden lg:block">

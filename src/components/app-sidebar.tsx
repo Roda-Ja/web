@@ -7,7 +7,7 @@ import {
   MapPin,
   ScrollText,
   ShoppingBasket,
-  ShoppingCart,
+  // ShoppingCart,
   Users,
 } from 'lucide-react'
 import * as React from 'react'
@@ -15,6 +15,8 @@ import * as React from 'react'
 import { NavMain } from '@/components/nav-main'
 import { NavProjects } from '@/components/nav-projects'
 import { NavUser } from '@/components/nav-user'
+import { useAuthStore } from '@/lib/stores/auth-store'
+import { getAllEstablishments } from '@/lib/data/establishments'
 import {
   Sidebar,
   SidebarContent,
@@ -26,19 +28,30 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar'
 
-// Dados de navegação com ícones corretos
-const data = {
-  user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
+// Função para obter URL do estabelecimento do usuário
+const getEstablishmentUrl = (page: string = 'cardapio') => {
+  const establishments = getAllEstablishments()
+  const user = useAuthStore.getState().user
+  const userEstablishment = establishments.find(
+    (est) => est.id === user?.establishmentId,
+  )
+  return userEstablishment
+    ? `/establishment/${userEstablishment.slug}/${page}`
+    : '/cardapio'
+}
+
+// Dados de navegação baseados no tipo de usuário
+const getNavigationData = (isMaster: boolean) => ({
   navMain: [
-    {
-      title: 'Painel Administrativo',
-      url: '/dashboard',
-      icon: LayoutDashboard,
-    },
+    ...(isMaster
+      ? [
+          {
+            title: 'Painel Administrativo',
+            url: '/dashboard',
+            icon: LayoutDashboard,
+          },
+        ]
+      : []),
     {
       title: 'Histórico de Pedidos',
       url: '/orders/history',
@@ -47,36 +60,41 @@ const data = {
   ],
   system: [
     {
-      name: 'Pedidos',
-      url: '/orders',
-      icon: ShoppingCart,
-    },
-    {
-      name: 'Produtos',
-      url: '/products',
+      name: 'Cardapio',
+      url: isMaster ? '/cardapio' : getEstablishmentUrl(),
       icon: ShoppingBasket,
     },
     {
-      name: 'Relatórios',
-      url: '/reports',
+      name: 'Avaliações',
+      url: isMaster ? '/reviews' : getEstablishmentUrl('reviews'),
       icon: ScrollText,
     },
-    {
-      name: 'Motoristas',
-      url: '/drivers',
-      icon: Users,
-    },
-    {
-      name: 'Estabelecimentos',
-      url: '/establishments',
-      icon: Building2,
-    },
+    // ...(isMaster
+    //   ? [
+    //       {
+    //         name: 'Motoristas',
+    //         url: '/drivers',
+    //         icon: Users,
+    //       },
+    //       {
+    //         name: 'Estabelecimentos',
+    //         url: '/establishments',
+    //         icon: Building2,
+    //       },
+    //     ]
+    //   : []),
   ],
-}
+})
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const isMaster = useAuthStore((state) => state.isMaster())
+  const data = getNavigationData(isMaster)
+
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar
+      collapsible="icon"
+      {...props}
+    >
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -85,7 +103,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <div className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500">
                   <MapPin className="w-3 text-white" />
                 </div>
-                <strong>Roda Ja</strong>
+                <strong>
+                  {isMaster ? 'DeliveryHub Admin' : 'Meu Estabelecimento'}
+                </strong>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -96,7 +116,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects projects={data.system} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

@@ -13,6 +13,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { useNavigationSync } from '@/hooks/use-navigation-sync'
+import { useAuthStore } from '@/lib/stores/auth-store'
 // import { File, FileText } from 'lucide-react'
 import { ReactNode } from 'react'
 
@@ -48,11 +49,12 @@ export default function AppLayout({
 
 function HeaderActions() {
   const pathname = usePathname()
+  const isMaster = useAuthStore((state) => state.isMaster())
 
-  // Mostra o ícone do carrinho apenas em páginas do cardápio
+  // Mostra o ícone do carrinho apenas em páginas do cardápio e não para usuários master
   const isMenuPage = pathname?.startsWith('/cardapio')
 
-  if (!isMenuPage) return null
+  if (!isMenuPage || isMaster) return null
 
   return (
     <div className="ml-auto flex items-center gap-2 px-4">

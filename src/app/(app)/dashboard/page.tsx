@@ -2,6 +2,9 @@
 
 import { NavigationDebug } from '@/components/navigation-debug'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { useAuthStore } from '@/lib/stores/auth-store'
+import { getAllEstablishments } from '@/lib/data/establishments'
 import {
   Bar,
   BarChart,
@@ -51,13 +54,56 @@ const userOverviewData = [
 ]
 
 export default function Page() {
+  const setUser = useAuthStore((state) => state.setUser)
+  const establishments = getAllEstablishments()
+
+  const handleTestEstablishmentAdmin = (
+    establishmentId: string,
+    establishmentName: string,
+  ) => {
+    const establishment = establishments.find((e) => e.id === establishmentId)
+    setUser({
+      id: establishmentId,
+      name: `Admin ${establishmentName}`,
+      email: `admin@${establishmentName.toLowerCase().replace(/\s+/g, '')}.com`,
+      role: 'establishment_admin',
+      establishmentId: establishmentId,
+    })
+    // Redirecionar para o cardápio do estabelecimento
+    window.location.href = `/establishment/${establishment?.slug}/cardapio`
+  }
+
   return (
     <>
-      <div>
-        <h1 className="text-2xl font-bold text-slate-700">
-          Bem vindo de volta, Raphael!!
-        </h1>
-        <p className="text-sm text-gray-500">Mar 01, 2025 - Mar 30, 2025</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-700">
+            Bem vindo de volta, Raphael!!
+          </h1>
+          <p className="text-sm text-gray-500">Mar 01, 2025 - Mar 30, 2025</p>
+        </div>
+
+        {/* Botões de Teste para Admin de Estabelecimento */}
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              handleTestEstablishmentAdmin('2', 'Pastelaria Fulano de Tal')
+            }
+          >
+            Testar: Admin Pastelaria
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              handleTestEstablishmentAdmin('3', 'Restaurante da Ana')
+            }
+          >
+            Testar: Admin Ana
+          </Button>
+        </div>
       </div>
       <div className="mt-4 flex flex-col gap-4 lg:flex-row">
         <div className="grid min-w-0 flex-1 gap-4">
@@ -68,14 +114,24 @@ export default function Page() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="w-full h-48 sm:h-56 md:h-64 lg:h-72 xl:h-80">
-                <ResponsiveContainer width="100%" height="100%">
+              <div className="h-48 w-full sm:h-56 md:h-64 lg:h-72 xl:h-80">
+                <ResponsiveContainer
+                  width="100%"
+                  height="100%"
+                >
                   <BarChart
                     data={earningsData}
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                   >
-                    <XAxis dataKey="name" interval="preserveStartEnd" minTickGap={8} />
-                    <YAxis domain={[0, 4000]} tickCount={11} />
+                    <XAxis
+                      dataKey="name"
+                      interval="preserveStartEnd"
+                      minTickGap={8}
+                    />
+                    <YAxis
+                      domain={[0, 4000]}
+                      tickCount={11}
+                    />
                     <Tooltip formatter={(value) => `R$ ${value}`} />
                     <Legend />
                     <Bar
@@ -118,13 +174,20 @@ export default function Page() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="w-full h-48 sm:h-56 md:h-64 lg:h-72 xl:h-80">
-                <ResponsiveContainer width="100%" height="100%">
+              <div className="h-48 w-full sm:h-56 md:h-64 lg:h-72 xl:h-80">
+                <ResponsiveContainer
+                  width="100%"
+                  height="100%"
+                >
                   <BarChart
                     data={userOverviewData}
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                   >
-                    <XAxis dataKey="name" interval="preserveStartEnd" minTickGap={8} />
+                    <XAxis
+                      dataKey="name"
+                      interval="preserveStartEnd"
+                      minTickGap={8}
+                    />
                     <YAxis />
                     <Tooltip />
                     <Legend />
@@ -133,7 +196,11 @@ export default function Page() {
                       fill="#2B7FFF"
                       radius={[5, 5, 0, 0]}
                     />
-                    <Bar dataKey="Total" fill="#FE9A00" radius={[5, 5, 0, 0]} />
+                    <Bar
+                      dataKey="Total"
+                      fill="#FE9A00"
+                      radius={[5, 5, 0, 0]}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -183,7 +250,10 @@ export default function Page() {
                 {Array(6)
                   .fill({})
                   .map((_, index) => (
-                    <li key={index} className="mb-4 flex items-center">
+                    <li
+                      key={index}
+                      className="mb-4 flex items-center"
+                    >
                       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-500 text-lg font-bold text-white">
                         HP
                       </div>
