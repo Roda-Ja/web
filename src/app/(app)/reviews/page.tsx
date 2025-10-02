@@ -79,27 +79,29 @@ export default function ReviewsPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-muted-foreground text-sm font-medium">
+            <CardTitle className="text-muted-foreground text-xs font-medium sm:text-sm">
               Total de Avaliações
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{reviewStats.totalReviews}</div>
+            <div className="text-xl font-bold sm:text-2xl">
+              {reviewStats.totalReviews}
+            </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-muted-foreground text-sm font-medium">
+            <CardTitle className="text-muted-foreground text-xs font-medium sm:text-sm">
               Avaliação Média
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold">
+              <span className="text-xl font-bold sm:text-2xl">
                 {reviewStats.averageRating}
               </span>
               <div className="flex items-center">
@@ -111,12 +113,12 @@ export default function ReviewsPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-muted-foreground text-sm font-medium">
+            <CardTitle className="text-muted-foreground text-xs font-medium sm:text-sm">
               Avaliações Recentes
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-xl font-bold text-green-600 sm:text-2xl">
               {reviewStats.recentReviews}
             </div>
             <p className="text-muted-foreground text-xs">Últimos 7 dias</p>
@@ -125,12 +127,12 @@ export default function ReviewsPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-muted-foreground text-sm font-medium">
+            <CardTitle className="text-muted-foreground text-xs font-medium sm:text-sm">
               Avaliações Verificadas
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
+            <div className="text-xl font-bold text-blue-600 sm:text-2xl">
               {reviews.filter((r) => r.verified).length}
             </div>
             <p className="text-muted-foreground text-xs">
@@ -144,35 +146,37 @@ export default function ReviewsPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-        <div className="lg:col-span-1">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-4">
+        <div className="xl:col-span-1">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Filtros</CardTitle>
+              <CardTitle className="text-base sm:text-lg">Filtros</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Buscar</label>
+                <label className="text-xs font-medium sm:text-sm">Buscar</label>
                 <div className="relative">
                   <Search className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
                   <Input
                     placeholder="Nome, produto ou comentário..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 text-sm"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Avaliação</label>
+                <label className="text-xs font-medium sm:text-sm">
+                  Avaliação
+                </label>
                 <div className="space-y-1">
                   {[5, 4, 3, 2, 1].map((rating) => (
                     <Button
                       key={rating}
                       variant={selectedRating === rating ? 'default' : 'ghost'}
                       size="sm"
-                      className="w-full justify-start"
+                      className="w-full justify-start text-xs"
                       onClick={() =>
                         setSelectedRating(
                           selectedRating === rating ? null : rating,
@@ -200,7 +204,7 @@ export default function ReviewsPage() {
                 <Button
                   variant={showVerifiedOnly ? 'default' : 'outline'}
                   size="sm"
-                  className="w-full justify-start"
+                  className="w-full justify-start text-xs"
                   onClick={() => setShowVerifiedOnly(!showVerifiedOnly)}
                 >
                   <Filter className="mr-2 h-4 w-4" />
@@ -212,7 +216,7 @@ export default function ReviewsPage() {
 
           <Card className="mt-4">
             <CardHeader>
-              <CardTitle className="text-lg">
+              <CardTitle className="text-base sm:text-lg">
                 Distribuição de Avaliações
               </CardTitle>
             </CardHeader>
@@ -222,14 +226,17 @@ export default function ReviewsPage() {
           </Card>
         </div>
 
-        <div className="lg:col-span-3">
+        <div className="xl:col-span-3">
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <CardTitle className="text-base sm:text-lg">
                   Avaliações ({filteredReviews.length})
                 </CardTitle>
-                <Badge variant="secondary">
+                <Badge
+                  variant="secondary"
+                  className="w-fit"
+                >
                   {filteredReviews.length === reviews.length
                     ? 'Todas'
                     : 'Filtradas'}
@@ -247,7 +254,7 @@ export default function ReviewsPage() {
                   ))
                 ) : (
                   <div className="py-8 text-center">
-                    <p className="text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       Nenhuma avaliação encontrada com os filtros aplicados.
                     </p>
                   </div>

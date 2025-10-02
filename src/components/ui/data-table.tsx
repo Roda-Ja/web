@@ -187,9 +187,9 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Controles de paginação */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium">Linhas por página</p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:space-x-2">
+          <p className="text-xs font-medium sm:text-sm">Linhas por página</p>
           <div className="flex items-center space-x-1">
             {pageSizeOptions.map((size) => (
               <Button
@@ -203,7 +203,7 @@ export function DataTable<TData, TValue>({
                     pageIndex: 0,
                   }))
                 }
-                className="h-8 w-12"
+                className="h-7 w-10 text-xs sm:h-8 sm:w-12 sm:text-sm"
                 disabled={loading}
               >
                 {size}
@@ -211,61 +211,63 @@ export function DataTable<TData, TValue>({
             ))}
           </div>
         </div>
-        <div className="flex items-center space-x-6 lg:space-x-8">
-          <div className="flex items-center space-x-2">
-            <p className="text-sm font-medium">Página</p>
-            <span className="text-sm font-medium">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:space-x-6 lg:space-x-8">
+          <div className="flex items-center justify-center space-x-2 sm:justify-start">
+            <p className="text-xs font-medium sm:text-sm">Página</p>
+            <span className="text-xs font-medium sm:text-sm">
               {pagination.pageIndex + 1} de {table.getPageCount()}
             </span>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center justify-center space-x-1 sm:space-x-2">
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
+              className="hidden h-7 w-7 p-0 sm:h-8 sm:w-8 lg:flex"
               onClick={() => table.setPageIndex(0)}
               disabled={!table.getCanPreviousPage() || loading}
             >
               <span className="sr-only">Ir para primeira página</span>
-              <ChevronsLeft className="h-4 w-4" />
+              <ChevronsLeft className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
             <Button
               variant="outline"
-              className="h-8 w-8 p-0"
+              className="h-7 w-7 p-0 sm:h-8 sm:w-8"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage() || loading}
             >
               <span className="sr-only">Ir para página anterior</span>
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
             <Button
               variant="outline"
-              className="h-8 w-8 p-0"
+              className="h-7 w-7 p-0 sm:h-8 sm:w-8"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage() || loading}
             >
               <span className="sr-only">Ir para próxima página</span>
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
+              className="hidden h-7 w-7 p-0 sm:h-8 sm:w-8 lg:flex"
               onClick={() => table.setPageIndex(table.getPageCount() - 1)}
               disabled={!table.getCanNextPage() || loading}
             >
               <span className="sr-only">Ir para última página</span>
-              <ChevronsRight className="h-4 w-4" />
+              <ChevronsRight className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </div>
         </div>
       </div>
 
       {/* Informações da paginação */}
-      <div className="flex items-center justify-between space-x-2 py-4">
-        <div className="text-muted-foreground text-sm">
+      <div className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center sm:justify-between sm:space-x-2">
+        <div className="text-muted-foreground text-xs sm:text-sm">
           Mostrando {startItem} a {endItem} de {totalCount} resultado(s).
         </div>
         {loading && (
-          <div className="text-muted-foreground text-sm">Carregando...</div>
+          <div className="text-muted-foreground text-xs sm:text-sm">
+            Carregando...
+          </div>
         )}
       </div>
     </div>

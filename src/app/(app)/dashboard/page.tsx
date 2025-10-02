@@ -75,24 +75,28 @@ export default function Page() {
 
   return (
     <>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-700">
+          <h1 className="text-xl font-bold text-slate-700 sm:text-2xl">
             Bem vindo de volta, Raphael!!
           </h1>
-          <p className="text-sm text-gray-500">Mar 01, 2025 - Mar 30, 2025</p>
+          <p className="text-xs text-gray-500 sm:text-sm">
+            Mar 01, 2025 - Mar 30, 2025
+          </p>
         </div>
 
         {/* Botões de Teste para Admin de Estabelecimento */}
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <Button
             variant="outline"
             size="sm"
             onClick={() =>
               handleTestEstablishmentAdmin('2', 'Pastelaria Fulano de Tal')
             }
+            className="text-xs"
           >
-            Testar: Admin Pastelaria
+            <span className="hidden sm:inline">Testar: Admin Pastelaria</span>
+            <span className="sm:hidden">Admin Pastelaria</span>
           </Button>
           <Button
             variant="outline"
@@ -100,16 +104,18 @@ export default function Page() {
             onClick={() =>
               handleTestEstablishmentAdmin('3', 'Restaurante da Ana')
             }
+            className="text-xs"
           >
-            Testar: Admin Ana
+            <span className="hidden sm:inline">Testar: Admin Ana</span>
+            <span className="sm:hidden">Admin Ana</span>
           </Button>
         </div>
       </div>
-      <div className="mt-4 flex flex-col gap-4 lg:flex-row">
+      <div className="mt-4 flex flex-col gap-4 xl:flex-row">
         <div className="grid min-w-0 flex-1 gap-4">
           <Card>
             <CardHeader className="pb-1">
-              <CardTitle className="text-lg font-bold text-slate-800">
+              <CardTitle className="text-base font-bold text-slate-800 sm:text-lg">
                 Ganhos de Roda Ja
               </CardTitle>
             </CardHeader>
@@ -121,16 +127,18 @@ export default function Page() {
                 >
                   <BarChart
                     data={earningsData}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
                   >
                     <XAxis
                       dataKey="name"
                       interval="preserveStartEnd"
-                      minTickGap={8}
+                      minTickGap={4}
+                      fontSize={12}
                     />
                     <YAxis
                       domain={[0, 4000]}
-                      tickCount={11}
+                      tickCount={6}
+                      fontSize={12}
                     />
                     <Tooltip formatter={(value) => `R$ ${value}`} />
                     <Legend />
@@ -146,30 +154,30 @@ export default function Page() {
           </Card>
           <Card>
             <CardHeader className="pb-1">
-              <CardTitle className="text-lg font-bold text-slate-800">
+              <CardTitle className="text-base font-bold text-slate-800 sm:text-lg">
                 Overview de Entregas
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex justify-center gap-6">
+              <div className="flex justify-center gap-3 sm:gap-6">
                 <div className="text-center">
-                  <p className="text-4xl font-bold">635</p>
-                  <p className="text-sm text-gray-500">DIA</p>
+                  <p className="text-2xl font-bold sm:text-4xl">635</p>
+                  <p className="text-xs text-gray-500 sm:text-sm">DIA</p>
                 </div>
-                <div className="border-r border-l border-gray-300 px-4 text-center">
-                  <p className="text-4xl font-bold">4.560</p>
-                  <p className="text-sm text-gray-500">SEMANA</p>
+                <div className="border-r border-l border-gray-300 px-2 text-center sm:px-4">
+                  <p className="text-2xl font-bold sm:text-4xl">4.560</p>
+                  <p className="text-xs text-gray-500 sm:text-sm">SEMANA</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-4xl font-bold">20.578</p>
-                  <p className="text-sm text-gray-500">MÊS</p>
+                  <p className="text-2xl font-bold sm:text-4xl">20.578</p>
+                  <p className="text-xs text-gray-500 sm:text-sm">MÊS</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-1">
-              <CardTitle className="text-lg font-bold text-slate-800">
+              <CardTitle className="text-base font-bold text-slate-800 sm:text-lg">
                 Overview de Usuários
               </CardTitle>
             </CardHeader>
@@ -181,14 +189,15 @@ export default function Page() {
                 >
                   <BarChart
                     data={userOverviewData}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
                   >
                     <XAxis
                       dataKey="name"
                       interval="preserveStartEnd"
-                      minTickGap={8}
+                      minTickGap={4}
+                      fontSize={12}
                     />
-                    <YAxis />
+                    <YAxis fontSize={12} />
                     <Tooltip />
                     <Legend />
                     <Bar
@@ -207,10 +216,10 @@ export default function Page() {
             </CardContent>
           </Card>
         </div>
-        <div className="flex w-full flex-col gap-4 lg:w-[400px]">
+        <div className="flex w-full flex-col gap-4 xl:w-[400px]">
           <Card className="mb-4">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl font-bold text-slate-800">
+              <CardTitle className="text-lg font-bold text-slate-800 sm:text-xl">
                 Motorista Destaque do Mês
               </CardTitle>
             </CardHeader>
@@ -219,20 +228,24 @@ export default function Page() {
                 <img
                   src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                   alt="Antônio Reis"
-                  className="h-28 w-28 rounded-full object-cover"
+                  className="h-20 w-20 rounded-full object-cover sm:h-28 sm:w-28"
                 />
                 <div className="text-center">
-                  <p className="text-2xl font-bold">Antônio Reis</p>
-                  <div className="flex gap-2">
-                    <p className="text-md flex flex-col p-4">
-                      <span className="text-xl font-bold">220</span> Corridas
+                  <p className="text-xl font-bold sm:text-2xl">Antônio Reis</p>
+                  <div className="flex flex-col gap-2 sm:flex-row sm:gap-2">
+                    <p className="sm:text-md flex flex-col p-2 text-sm sm:p-4">
+                      <span className="text-lg font-bold sm:text-xl">220</span>
+                      <span className="text-xs sm:text-sm">Corridas</span>
                     </p>
-                    <p className="text-md flex flex-col border-x border-zinc-200 p-4">
-                      <span className="text-xl font-bold">R$ 4.840,00</span>
-                      Renda
+                    <p className="sm:text-md flex flex-col border-t border-zinc-200 p-2 text-sm sm:border-x sm:border-t-0 sm:p-4">
+                      <span className="text-lg font-bold sm:text-xl">
+                        R$ 4.840,00
+                      </span>
+                      <span className="text-xs sm:text-sm">Renda</span>
                     </p>
-                    <p className="text-md flex flex-col p-4">
-                      <span className="text-xl font-bold">4.8</span> Avaliação
+                    <p className="sm:text-md flex flex-col p-2 text-sm sm:p-4">
+                      <span className="text-lg font-bold sm:text-xl">4.8</span>
+                      <span className="text-xs sm:text-sm">Avaliação</span>
                     </p>
                   </div>
                 </div>
@@ -241,7 +254,7 @@ export default function Page() {
           </Card>
           <Card>
             <CardHeader className="pb-4">
-              <CardTitle className="text-xl font-bold text-slate-900">
+              <CardTitle className="text-lg font-bold text-slate-900 sm:text-xl">
                 Lista de Estabelecimentos Ativos
               </CardTitle>
             </CardHeader>
@@ -252,12 +265,14 @@ export default function Page() {
                   .map((_, index) => (
                     <li
                       key={index}
-                      className="mb-4 flex items-center"
+                      className="mb-3 flex items-center sm:mb-4"
                     >
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-500 text-lg font-bold text-white">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500 text-sm font-bold text-white sm:h-14 sm:w-14 sm:text-lg">
                         HP
                       </div>
-                      <p className="ml-3 text-xl">Hambúrguer Pele</p>
+                      <p className="ml-2 text-sm sm:ml-3 sm:text-xl">
+                        Hambúrguer Pele
+                      </p>
                     </li>
                   ))}
               </ul>
