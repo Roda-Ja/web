@@ -81,39 +81,46 @@ export default function EstablishmentCardapioPage({
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-4 p-4 sm:gap-6 sm:p-6">
       {/* Header */}
-      <div className="mb-4 flex items-center justify-between gap-4">
+      <div className="mb-2 flex flex-col gap-4 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl">
             Cardápio - {establishment.name}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Gerencie os produtos do seu estabelecimento
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
           <AddProductDialog />
           <Link
             href={`/${establishment.slug}`}
             target="_blank"
           >
-            <Button variant="outline">Ver Site Público</Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs sm:text-sm"
+            >
+              <span className="hidden sm:inline">Ver Site Público</span>
+              <span className="sm:hidden">Site Público</span>
+            </Button>
           </Link>
         </div>
       </div>
 
       {/* Estatísticas Rápidas */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-xs font-medium sm:text-sm">
               Total de Produtos
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-xl font-bold sm:text-2xl">
               {establishment.products.length}
             </div>
           </CardContent>
@@ -121,23 +128,25 @@ export default function EstablishmentCardapioPage({
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-xs font-medium sm:text-sm">
               Produtos Ativos
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-xl font-bold sm:text-2xl">
               {establishment.products.filter((p) => p.isAvailable).length}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="sm:col-span-2 lg:col-span-1">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Categorias</CardTitle>
+            <CardTitle className="text-xs font-medium sm:text-sm">
+              Categorias
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-xl font-bold sm:text-2xl">
               {establishment.categories.length}
             </div>
           </CardContent>
@@ -149,13 +158,13 @@ export default function EstablishmentCardapioPage({
         defaultValue="todos"
         className="w-full"
       >
-        <div className="mb-6">
-          <TabsList className="inline-flex h-8 w-auto">
+        <div className="mb-4 sm:mb-6">
+          <TabsList className="inline-flex h-7 w-auto sm:h-8">
             {categories.map((c) => (
               <TabsTrigger
                 key={c.value}
                 value={c.value}
-                className="px-3 text-xs"
+                className="px-2 text-xs sm:px-3"
               >
                 {c.label}
               </TabsTrigger>
@@ -167,7 +176,7 @@ export default function EstablishmentCardapioPage({
           <TabsContent
             key={c.value}
             value={c.value}
-            className="mt-6"
+            className="mt-4 sm:mt-6"
           >
             {renderGrid(c.value)}
           </TabsContent>

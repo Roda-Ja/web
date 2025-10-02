@@ -98,21 +98,21 @@ export default function Cardapio() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-4 p-4 sm:gap-6 sm:p-6">
       {/* Header com seleção de estabelecimento */}
-      <div className="mb-4 flex items-center justify-between gap-4">
+      <div className="mb-2 flex flex-col gap-2 sm:mb-4 sm:gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl">
             Gerenciar Cardápios
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Gerencie os produtos e cardápios dos estabelecimentos
           </p>
         </div>
       </div>
 
       {/* Seleção de estabelecimento */}
-      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mb-4 grid grid-cols-1 gap-3 sm:mb-6 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
         {establishments.map((establishment) => (
           <Card
             key={establishment.id}
@@ -123,15 +123,17 @@ export default function Cardapio() {
             }`}
             onClick={() => setSelectedEstablishment(establishment.id)}
           >
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">{establishment.name}</CardTitle>
-              <CardDescription className="text-sm">
+            <CardHeader className="pb-2 sm:pb-3">
+              <CardTitle className="truncate text-base sm:text-lg">
+                {establishment.name}
+              </CardTitle>
+              <CardDescription className="line-clamp-2 text-xs sm:text-sm">
                 {establishment.description}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="text-muted-foreground text-sm">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className="text-muted-foreground text-xs sm:text-sm">
                   {establishment.products.length} produtos
                 </div>
                 <Link
@@ -141,6 +143,7 @@ export default function Cardapio() {
                   <Button
                     variant="outline"
                     size="sm"
+                    className="w-full text-xs sm:w-auto"
                   >
                     Ver Público
                   </Button>
@@ -152,12 +155,12 @@ export default function Cardapio() {
       </div>
 
       {/* Cardápio do estabelecimento selecionado */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-lg font-bold sm:text-xl lg:text-2xl">
             Cardápio - {currentEstablishment.name}
           </h2>
-          <div className="text-muted-foreground text-sm">
+          <div className="text-muted-foreground text-xs sm:text-sm">
             {currentEstablishment.products.length} produtos cadastrados
           </div>
         </div>
@@ -166,13 +169,13 @@ export default function Cardapio() {
           defaultValue="todos"
           className="w-full"
         >
-          <div className="mb-6">
-            <TabsList className="inline-flex h-8 w-auto">
+          <div className="mb-4 overflow-x-auto sm:mb-6">
+            <TabsList className="inline-flex h-7 w-auto sm:h-8">
               {categories.map((c) => (
                 <TabsTrigger
                   key={c.value}
                   value={c.value}
-                  className="px-3 text-xs"
+                  className="px-2 text-xs whitespace-nowrap sm:px-3"
                 >
                   {c.label}
                 </TabsTrigger>
@@ -184,7 +187,7 @@ export default function Cardapio() {
             <TabsContent
               key={c.value}
               value={c.value}
-              className="mt-6"
+              className="mt-4 sm:mt-6"
             >
               {renderGrid(c.value)}
             </TabsContent>

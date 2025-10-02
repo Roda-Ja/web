@@ -75,7 +75,7 @@ export default function LoginPage() {
 
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="flex flex-col gap-4 p-6 md:p-10">
+      <div className="flex flex-col gap-4 p-4 sm:p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
           <a
             href="#"
@@ -88,19 +88,21 @@ export default function LoginPage() {
           </a>
         </div>
         <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">
+          <div className="w-full max-w-xs sm:max-w-sm">
             <FormProvider {...signInForm}>
               <form
-                className="flex flex-col gap-6"
+                className="flex flex-col gap-4 sm:gap-6"
                 onSubmit={handleSubmit(handleSignIn)}
               >
                 <div className="flex flex-col items-center gap-2 text-center">
-                  <h1 className="text-2xl font-bold">Entre na sua conta</h1>
-                  <p className="text-muted-foreground text-sm text-balance">
+                  <h1 className="text-xl font-bold sm:text-2xl">
+                    Entre na sua conta
+                  </h1>
+                  <p className="text-muted-foreground text-xs text-balance sm:text-sm">
                     Digite seu e-mail abaixo para acessar sua conta
                   </p>
                 </div>
-                <div className="grid gap-6">
+                <div className="grid gap-4 sm:gap-6">
                   <Form.Field>
                     <Form.Label>Email</Form.Label>
                     <Form.Input
@@ -118,7 +120,7 @@ export default function LoginPage() {
 
                       <a
                         href="#"
-                        className="ml-auto text-sm underline-offset-4 hover:underline"
+                        className="ml-auto text-xs underline-offset-4 hover:underline sm:text-sm"
                       >
                         Esqueceu sua senha?
                       </a>
@@ -138,8 +140,8 @@ export default function LoginPage() {
                     Entrar
                   </Button>
                 </div>
-                <div className="text-center text-sm">
-                  Não tem uma conta?
+                <div className="text-center text-xs sm:text-sm">
+                  Não tem uma conta?{' '}
                   <a
                     href="/sign-up"
                     className="underline underline-offset-4"
@@ -153,21 +155,23 @@ export default function LoginPage() {
         </div>
 
         {/* Acesso Rápido para Teste */}
-        <div className="mt-8">
+        <div className="mt-4 sm:mt-8">
           <Card>
-            <CardHeader>
-              <CardTitle className="text-center text-lg">
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="text-center text-base sm:text-lg">
                 Acesso Rápido para Teste
               </CardTitle>
-              <CardDescription className="text-center">
+              <CardDescription className="text-center text-xs sm:text-sm">
                 Escolha um tipo de usuário para testar o sistema
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4">
               {/* Master Admin */}
-              <div className="flex items-center justify-between rounded-lg border p-3">
-                <div>
-                  <h3 className="text-sm font-semibold">Master Admin</h3>
+              <div className="flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
+                <div className="flex-1">
+                  <h3 className="text-xs font-semibold sm:text-sm">
+                    Master Admin
+                  </h3>
                   <p className="text-muted-foreground text-xs">
                     Acesso total ao sistema
                   </p>
@@ -176,8 +180,12 @@ export default function LoginPage() {
                   onClick={() => handleQuickLogin('master')}
                   variant="outline"
                   size="sm"
+                  className="w-full text-xs sm:w-auto"
                 >
-                  Entrar como Roda Ja Master
+                  <span className="hidden sm:inline">
+                    Entrar como Roda Ja Master
+                  </span>
+                  <span className="sm:hidden">Entrar como Master</span>
                 </Button>
               </div>
 
@@ -189,10 +197,10 @@ export default function LoginPage() {
                 {establishments.slice(0, 2).map((establishment) => (
                   <div
                     key={establishment.id}
-                    className="flex items-center justify-between rounded border p-2"
+                    className="flex flex-col gap-2 rounded border p-2 sm:flex-row sm:items-center sm:justify-between sm:gap-0"
                   >
-                    <div>
-                      <h4 className="text-sm font-medium">
+                    <div className="min-w-0 flex-1">
+                      <h4 className="truncate text-xs font-medium sm:text-sm">
                         {establishment.name}
                       </h4>
                       <p className="text-muted-foreground text-xs">
@@ -209,6 +217,7 @@ export default function LoginPage() {
                       }
                       variant="outline"
                       size="sm"
+                      className="w-full text-xs sm:w-auto"
                     >
                       Entrar
                     </Button>

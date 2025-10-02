@@ -63,26 +63,26 @@ export default function EstablishmentPage({ params }: EstablishmentPageProps) {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="border-b bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <Link
               href="/"
-              className="flex items-center gap-3 transition-opacity hover:opacity-80"
+              className="flex items-center gap-2 transition-opacity hover:opacity-80 sm:gap-3"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500 text-white">
-                <span className="text-sm font-bold">🍽️</span>
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500 text-white sm:h-10 sm:w-10">
+                <span className="text-xs font-bold sm:text-sm">🍽️</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">
+                <h1 className="truncate text-base font-bold text-gray-900 sm:text-xl">
                   {establishment.name}
                 </h1>
-                <p className="text-sm text-gray-500">
+                <p className="hidden text-sm text-gray-500 sm:block">
                   Voltar aos estabelecimentos
                 </p>
               </div>
             </Link>
 
-            <nav className="hidden items-center gap-6 md:flex">
+            <nav className="hidden items-center gap-4 md:flex md:gap-6">
               <a
                 href="#cardapio"
                 className="text-sm font-medium text-gray-600 hover:text-orange-500"
@@ -107,42 +107,52 @@ export default function EstablishmentPage({ params }: EstablishmentPageProps) {
       </header>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-orange-500 to-red-500 py-12 text-white">
+      <section className="bg-gradient-to-r from-orange-500 to-red-500 py-8 text-white sm:py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl">
-            <div className="mb-4 flex items-center gap-2">
-              <h2 className="text-4xl font-bold">{establishment.name}</h2>
-              <div className="flex items-center gap-1 rounded-full bg-white/20 px-2 py-1">
-                <Star className="h-4 w-4 fill-current" />
-                <span className="text-sm font-medium">{averageRating}</span>
+            <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
+              <h2 className="text-2xl font-bold sm:text-3xl lg:text-4xl">
+                {establishment.name}
+              </h2>
+              <div className="flex w-fit items-center gap-1 rounded-full bg-white/20 px-2 py-1">
+                <Star className="h-3 w-3 fill-current sm:h-4 sm:w-4" />
+                <span className="text-xs font-medium sm:text-sm">
+                  {averageRating}
+                </span>
               </div>
             </div>
-            <p className="mb-6 text-xl text-orange-100">
+            <p className="mb-6 text-base text-orange-100 sm:text-lg lg:text-xl">
               {establishment.description}
             </p>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3">
               <div className="flex items-center gap-3">
-                <MapPin className="h-5 w-5" />
-                <div>
-                  <p className="text-sm text-orange-200">Endereço</p>
-                  <p className="font-medium">{establishment.address}</p>
+                <MapPin className="h-4 w-4 flex-shrink-0 sm:h-5 sm:w-5" />
+                <div className="min-w-0">
+                  <p className="text-xs text-orange-200 sm:text-sm">Endereço</p>
+                  <p className="truncate text-sm font-medium sm:text-base">
+                    {establishment.address}
+                  </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <Clock className="h-5 w-5" />
-                <div>
-                  <p className="text-sm text-orange-200">Funcionamento</p>
-                  <p className="font-medium">{establishment.workingHours}</p>
+                <Clock className="h-4 w-4 flex-shrink-0 sm:h-5 sm:w-5" />
+                <div className="min-w-0">
+                  <p className="text-xs text-orange-200 sm:text-sm">
+                    Funcionamento
+                  </p>
+                  <p className="text-sm font-medium sm:text-base">
+                    {establishment.workingHours}
+                  </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <Truck className="h-5 w-5" />
-                <div>
-                  <p className="text-sm text-orange-200">Delivery</p>
-                  <p className="font-medium">
+                <Truck className="h-4 w-4 flex-shrink-0 sm:h-5 sm:w-5" />
+                <div className="min-w-0">
+                  <p className="text-xs text-orange-200 sm:text-sm">Delivery</p>
+                  <p className="text-sm font-medium sm:text-base">
                     R$ {establishment.deliveryFee.toFixed(2)} • Min: R${' '}
                     {establishment.minOrderValue.toFixed(2)}
                   </p>
@@ -154,12 +164,12 @@ export default function EstablishmentPage({ params }: EstablishmentPageProps) {
       </section>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h3 className="mb-2 text-3xl font-bold text-gray-900">
+      <main className="container mx-auto px-4 py-6 sm:py-8">
+        <div className="mb-6 sm:mb-8">
+          <h3 className="mb-2 text-2xl font-bold text-gray-900 sm:text-3xl">
             Nosso Cardápio
           </h3>
-          <p className="text-gray-600">
+          <p className="text-sm text-gray-600 sm:text-base">
             Deliciosas opções preparadas com carinho para você
           </p>
         </div>
@@ -168,13 +178,13 @@ export default function EstablishmentPage({ params }: EstablishmentPageProps) {
           defaultValue="todos"
           className="w-full"
         >
-          <div className="mb-6">
-            <TabsList className="inline-flex h-8 w-auto">
+          <div className="mb-4 overflow-x-auto sm:mb-6">
+            <TabsList className="inline-flex h-7 w-auto sm:h-8">
               {categories.map((category) => (
                 <TabsTrigger
                   key={category.value}
                   value={category.value}
-                  className="px-3 text-xs"
+                  className="px-2 text-xs whitespace-nowrap sm:px-3"
                 >
                   {category.label}
                 </TabsTrigger>
@@ -186,7 +196,7 @@ export default function EstablishmentPage({ params }: EstablishmentPageProps) {
             <TabsContent
               key={category.value}
               value={category.value}
-              className="mt-6"
+              className="mt-4 sm:mt-6"
             >
               {renderGrid(category.value)}
             </TabsContent>
@@ -195,42 +205,48 @@ export default function EstablishmentPage({ params }: EstablishmentPageProps) {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 py-12 text-white">
+      <footer className="bg-gray-900 py-8 text-white sm:py-12">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-3">
             <div>
               <div className="mb-4 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500 text-white">
-                  <span className="text-sm font-bold">🍽️</span>
+                <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-orange-500 text-white sm:h-8 sm:w-8">
+                  <span className="text-xs font-bold sm:text-sm">🍽️</span>
                 </div>
-                <span className="text-xl font-bold">{establishment.name}</span>
+                <span className="truncate text-lg font-bold sm:text-xl">
+                  {establishment.name}
+                </span>
               </div>
-              <p className="text-sm text-gray-300">
+              <p className="text-xs text-gray-300 sm:text-sm">
                 {establishment.description}
               </p>
             </div>
 
             <div>
-              <h3 className="mb-4 font-semibold">Contato</h3>
-              <div className="space-y-2 text-sm text-gray-300">
+              <h3 className="mb-3 text-sm font-semibold sm:mb-4 sm:text-base">
+                Contato
+              </h3>
+              <div className="space-y-2 text-xs text-gray-300 sm:text-sm">
                 <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4" />
-                  <span>{establishment.phone}</span>
+                  <Phone className="h-3 w-3 flex-shrink-0 sm:h-4 sm:w-4" />
+                  <span className="truncate">{establishment.phone}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  <span>{establishment.address}</span>
+                  <MapPin className="h-3 w-3 flex-shrink-0 sm:h-4 sm:w-4" />
+                  <span className="truncate">{establishment.address}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
+                  <Clock className="h-3 w-3 flex-shrink-0 sm:h-4 sm:w-4" />
                   <span>{establishment.workingHours}</span>
                 </div>
               </div>
             </div>
 
             <div>
-              <h3 className="mb-4 font-semibold">Delivery</h3>
-              <div className="space-y-2 text-sm text-gray-300">
+              <h3 className="mb-3 text-sm font-semibold sm:mb-4 sm:text-base">
+                Delivery
+              </h3>
+              <div className="space-y-2 text-xs text-gray-300 sm:text-sm">
                 <p>
                   Taxa de entrega: R$ {establishment.deliveryFee.toFixed(2)}
                 </p>
@@ -242,14 +258,14 @@ export default function EstablishmentPage({ params }: EstablishmentPageProps) {
             </div>
           </div>
 
-          <div className="mt-8 border-t border-gray-800 pt-8 text-center">
+          <div className="mt-6 border-t border-gray-800 pt-6 text-center sm:mt-8 sm:pt-8">
             <Link
               href="/"
-              className="text-orange-400 transition-colors hover:text-orange-300"
+              className="text-sm text-orange-400 transition-colors hover:text-orange-300 sm:text-base"
             >
               ← Voltar aos estabelecimentos
             </Link>
-            <p className="mt-4 text-sm text-gray-400">
+            <p className="mt-3 text-xs text-gray-400 sm:mt-4 sm:text-sm">
               &copy; 2024 {establishment.name}. Todos os direitos reservados.
             </p>
           </div>
