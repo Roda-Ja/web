@@ -32,22 +32,51 @@ export default function Cardapio() {
   // Se for admin de estabelecimento, redirecionar para a página específica do estabelecimento
   useEffect(() => {
     if (isEstablishmentAdmin && user?.establishmentId) {
-      const userEstablishment = establishments.find(
+      // Tenta encontrar pelo ID do estabelecimento
+      let userEstablishment = establishments.find(
         (est) => est.id === user.establishmentId,
       )
+
+      // Fallback: tenta por slug derivado do nome do usuário (ex.: "Roda já" -> "roda-ja")
+      if (!userEstablishment && user?.name) {
+        const slug = user.name
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/[^\w-]/g, '')
+          .replace(/--+/g, '-')
+          .replace(/^-+|-+$/g, '')
+        userEstablishment = establishments.find((est) => est.slug === slug)
+      }
+
       if (userEstablishment) {
         router.replace(`/establishment/${userEstablishment.slug}/cardapio`)
       }
     }
   }, [isEstablishmentAdmin, user?.establishmentId, establishments, router])
 
-  // Apenas master admin pode ver esta página
-  if (!isMaster) {
+  // Verificar se o usuário está autenticado
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+
+  if (!isAuthenticated) {
     return (
       <div className="p-8 text-center">
         <h2 className="mb-4 text-2xl font-bold">Acesso Negado</h2>
         <p className="text-muted-foreground">
-          Você não tem permissão para acessar esta página.
+          Você precisa estar logado para acessar esta página.
+        </p>
+      </div>
+    )
+  }
+
+  // Se for admin de estabelecimento, não renderiza nada desta página
+  if (isEstablishmentAdmin) {
+    return (
+      <div className="p-8 text-center">
+        <h2 className="mb-2 text-xl font-semibold">Redirecionando…</h2>
+        <p className="text-muted-foreground text-sm">
+          Indo para o seu cardápio do estabelecimento.
         </p>
       </div>
     )
@@ -103,56 +132,60 @@ export default function Cardapio() {
       <div className="mb-2 flex flex-col gap-2 sm:mb-4 sm:gap-4">
         <div>
           <h1 className="text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl">
-            Gerenciar Cardápios
+            Cardápios
           </h1>
           <p className="text-muted-foreground text-sm">
-            Gerencie os produtos e cardápios dos estabelecimentos
+            {isMaster
+              ? 'Gerencie os produtos e cardápios dos estabelecimentos'
+              : 'Visualize os produtos e cardápios disponíveis'}
           </p>
         </div>
       </div>
 
-      {/* Seleção de estabelecimento */}
-      <div className="mb-4 grid grid-cols-1 gap-3 sm:mb-6 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-        {establishments.map((establishment) => (
-          <Card
-            key={establishment.id}
-            className={`cursor-pointer transition-all hover:shadow-md ${
-              selectedEstablishment === establishment.id
-                ? 'ring-primary bg-primary/5 ring-2'
-                : ''
-            }`}
-            onClick={() => setSelectedEstablishment(establishment.id)}
-          >
-            <CardHeader className="pb-2 sm:pb-3">
-              <CardTitle className="truncate text-base sm:text-lg">
-                {establishment.name}
-              </CardTitle>
-              <CardDescription className="line-clamp-2 text-xs sm:text-sm">
-                {establishment.description}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div className="text-muted-foreground text-xs sm:text-sm">
-                  {establishment.products.length} produtos
-                </div>
-                <Link
-                  href={`/${establishment.slug}`}
-                  target="_blank"
-                >
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full text-xs sm:w-auto"
+      {/* Seleção de estabelecimento - apenas para master */}
+      {isMaster && (
+        <div className="mb-4 grid grid-cols-1 gap-3 sm:mb-6 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+          {establishments.map((establishment) => (
+            <Card
+              key={establishment.id}
+              className={`cursor-pointer transition-all hover:shadow-md ${
+                selectedEstablishment === establishment.id
+                  ? 'ring-primary bg-primary/5 ring-2'
+                  : ''
+              }`}
+              onClick={() => setSelectedEstablishment(establishment.id)}
+            >
+              <CardHeader className="pb-2 sm:pb-3">
+                <CardTitle className="truncate text-base sm:text-lg">
+                  {establishment.name}
+                </CardTitle>
+                <CardDescription className="line-clamp-2 text-xs sm:text-sm">
+                  {establishment.description}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="text-muted-foreground text-xs sm:text-sm">
+                    {establishment.products.length} produtos
+                  </div>
+                  <Link
+                    href={`/${establishment.slug}`}
+                    target="_blank"
                   >
-                    Ver Público
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full text-xs sm:w-auto"
+                    >
+                      Ver Público
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Cardápio do estabelecimento selecionado */}
       <div className="space-y-4 sm:space-y-6">

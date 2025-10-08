@@ -14,13 +14,15 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Plus, X } from 'lucide-react'
-import { AddCategoryDialog } from './add-category-dialog'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import type { Category } from '@/components/menu/product-card'
 import type { Product } from '@/lib/data/establishments'
 import { useEffect } from 'react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { productsApi } from '@/lib/api'
+import { toast } from 'sonner'
 
 const productSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
@@ -33,19 +35,16 @@ const productSchema = z.object({
       'Preço deve ser um número válido',
     ),
   oldPrice: z.string().optional(),
-  category: z.string().min(1, 'Categoria é obrigatória'),
-  image: z.string().url('URL da imagem deve ser válida'),
-  tag: z.string().optional(),
-  available: z.boolean(),
+  categoryId: z.string().uuid('Categoria inválida'),
+  imageUrl: z.string().url('URL da imagem deve ser válida'),
+  isActive: z.boolean(),
 })
 
 type ProductFormData = z.infer<typeof productSchema>
 
-const categories: { label: string; value: Category }[] = [
-  { label: 'Brasileira', value: 'brasileira' },
-  { label: 'Lanches', value: 'lanches' },
-  { label: 'Bebidas', value: 'bebidas' },
-  { label: 'Sobremesas', value: 'sobremesas' },
+const STATIC_CATEGORY_ID = '1e064214-19fb-4f85-9b9c-7a5a393b29ba'
+const categories: { label: string; value: string }[] = [
+  { label: 'Categoria padrão', value: STATIC_CATEGORY_ID },
 ]
 
 type AddProductDialogProps = {
@@ -64,6 +63,18 @@ export function AddProductDialog({
   const [open, setOpen] = useState(false)
   const [tags, setTags] = useState<string[]>([])
   const [availableCategories, setAvailableCategories] = useState(categories)
+  const queryClient = useQueryClient()
+  const { mutateAsync: createProduct, isPending } = useMutation({
+    mutationFn: productsApi.create,
+    onSuccess: () => {
+      toast.success('Produto criado com sucesso!')
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+    },
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || 'Erro ao criar produto'
+      toast.error(message)
+    },
+  })
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -72,16 +83,14 @@ export function AddProductDialog({
       description: '',
       price: '',
       oldPrice: '',
-      category: 'brasileira',
-      image: '',
-      tag: '',
-      available: true,
+      categoryId: STATIC_CATEGORY_ID,
+      imageUrl: '',
+      isActive: true,
     } as ProductFormData,
   })
 
   const isEditing = !!editingProduct
 
-  // Preencher formulário quando editando
   useEffect(() => {
     if (editingProduct) {
       setOpen(true)
@@ -90,65 +99,49 @@ export function AddProductDialog({
         description: editingProduct.description,
         price: editingProduct.price.toString(),
         oldPrice: editingProduct.originalPrice?.toString() || '',
-        category: editingProduct.category,
-        image: editingProduct.image,
-        tag: editingProduct.tag || '',
-        available: editingProduct.isAvailable ?? true,
+        categoryId: STATIC_CATEGORY_ID,
+        imageUrl: editingProduct.image,
+        isActive: editingProduct.isAvailable ?? true,
       })
 
-      // Configurar tags se existirem
       if (editingProduct.tag) {
         setTags([editingProduct.tag])
       }
     }
   }, [editingProduct, form])
 
-  const onSubmit = (data: ProductFormData) => {
-    // Aqui você faria a chamada para a API
-    const productData = {
-      ...data,
+  const onSubmit = async (data: ProductFormData) => {
+    const payload = {
+      name: data.name,
+      categoryId: data.categoryId,
+      description: data.description,
       price: parseFloat(data.price),
       oldPrice: data.oldPrice ? parseFloat(data.oldPrice) : undefined,
-      tag: tags.length > 0 ? tags[0] : undefined,
+      imageUrl: data.imageUrl,
+      isActive: data.isActive,
     }
 
     if (isEditing) {
-      console.log('Produto editado:', {
-        id: editingProduct?.id,
-        ...productData,
-      })
+      toast.info('Edição de produto será implementada em seguida.')
     } else {
-      console.log('Novo produto:', productData)
+      await createProduct(payload)
     }
 
-    // Reset form
     form.reset()
     setTags([])
     setOpen(false)
-
-    // Chamar callback de fechamento se fornecido
-    if (onClose) {
-      onClose()
-    }
+    if (onClose) onClose()
   }
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen)
-
-    // Se está fechando e não é modo de edição, limpar dados
     if (!newOpen && !isEditing) {
       form.reset()
       setTags([])
     }
   }
 
-  const handleCategoryAdded = (categoryName: string) => {
-    const newCategory = {
-      label: categoryName,
-      value: categoryName.toLowerCase().replace(/\s+/g, '-') as Category,
-    }
-    setAvailableCategories((prev) => [...prev, newCategory])
-  }
+  const handleCategoryAdded = (_categoryName: string) => {}
 
   const addTag = () => {
     const tag = form.getValues('tag')
@@ -162,7 +155,6 @@ export function AddProductDialog({
     setTags(tags.filter((tag) => tag !== tagToRemove))
   }
 
-  // Se está em modo de edição, renderizar apenas o Dialog sem trigger
   if (isEditing) {
     return (
       <Dialog
@@ -171,7 +163,7 @@ export function AddProductDialog({
       >
         <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Cadastrar Novo Produto</DialogTitle>
+            <DialogTitle>Editar Produto</DialogTitle>
           </DialogHeader>
 
           <FormProvider {...form}>
@@ -196,14 +188,9 @@ export function AddProductDialog({
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <label className="text-sm font-medium">Categoria</label>
-                    {showAddCategory && (
-                      <AddCategoryDialog
-                        onCategoryAdded={handleCategoryAdded}
-                      />
-                    )}
                   </div>
                   <select
-                    {...form.register('category')}
+                    {...form.register('categoryId')}
                     className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {availableCategories.map((category) => (
@@ -215,9 +202,9 @@ export function AddProductDialog({
                       </option>
                     ))}
                   </select>
-                  {form.formState.errors.category && (
+                  {form.formState.errors.categoryId && (
                     <span className="text-xs text-red-500">
-                      {form.formState.errors.category.message}
+                      {form.formState.errors.categoryId.message}
                     </span>
                   )}
                 </div>
@@ -275,11 +262,11 @@ export function AddProductDialog({
                 <label className="text-sm font-medium">URL da Imagem</label>
                 <Input
                   placeholder="https://exemplo.com/imagem.jpg"
-                  {...form.register('image')}
+                  {...form.register('imageUrl')}
                 />
-                {form.formState.errors.image && (
+                {form.formState.errors.imageUrl && (
                   <span className="text-xs text-red-500">
-                    {form.formState.errors.image.message}
+                    {form.formState.errors.imageUrl.message}
                   </span>
                 )}
               </div>
@@ -330,7 +317,7 @@ export function AddProductDialog({
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
-                  {...form.register('available')}
+                  {...form.register('isActive')}
                   className="border-input h-4 w-4 rounded border"
                 />
                 <label className="text-sm font-normal">
@@ -346,9 +333,12 @@ export function AddProductDialog({
                 >
                   Cancelar
                 </Button>
-                <Button type="submit">
+                <Button
+                  type="submit"
+                  disabled={isPending}
+                >
                   <Plus className="mr-2 h-4 w-4" />
-                  Cadastrar Produto
+                  {isPending ? 'Salvando...' : 'Salvar Alterações'}
                 </Button>
               </div>
             </form>
@@ -358,7 +348,6 @@ export function AddProductDialog({
     )
   }
 
-  // Modal normal para criação de produto
   return (
     <Dialog
       open={open}
@@ -377,7 +366,7 @@ export function AddProductDialog({
       )}
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Editar Produto</DialogTitle>
+          <DialogTitle>Cadastrar Novo Produto</DialogTitle>
         </DialogHeader>
 
         <FormProvider {...form}>
@@ -402,12 +391,9 @@ export function AddProductDialog({
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <label className="text-sm font-medium">Categoria</label>
-                  {showAddCategory && (
-                    <AddCategoryDialog onCategoryAdded={handleCategoryAdded} />
-                  )}
                 </div>
                 <select
-                  {...form.register('category')}
+                  {...form.register('categoryId')}
                   className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {availableCategories.map((category) => (
@@ -419,9 +405,9 @@ export function AddProductDialog({
                     </option>
                   ))}
                 </select>
-                {form.formState.errors.category && (
+                {form.formState.errors.categoryId && (
                   <span className="text-xs text-red-500">
-                    {form.formState.errors.category.message}
+                    {form.formState.errors.categoryId.message}
                   </span>
                 )}
               </div>
@@ -479,11 +465,11 @@ export function AddProductDialog({
               <label className="text-sm font-medium">URL da Imagem</label>
               <Input
                 placeholder="https://exemplo.com/imagem.jpg"
-                {...form.register('image')}
+                {...form.register('imageUrl')}
               />
-              {form.formState.errors.image && (
+              {form.formState.errors.imageUrl && (
                 <span className="text-xs text-red-500">
-                  {form.formState.errors.image.message}
+                  {form.formState.errors.imageUrl.message}
                 </span>
               )}
             </div>
@@ -534,7 +520,7 @@ export function AddProductDialog({
             <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
-                {...form.register('available')}
+                {...form.register('isActive')}
                 className="border-input h-4 w-4 rounded border"
               />
               <label className="text-sm font-normal">Produto disponível</label>
@@ -548,9 +534,16 @@ export function AddProductDialog({
               >
                 Cancelar
               </Button>
-              <Button type="submit">
+              <Button
+                type="submit"
+                disabled={isPending}
+              >
                 <Plus className="mr-2 h-4 w-4" />
-                {isEditing ? 'Salvar Alterações' : 'Cadastrar Produto'}
+                {isPending
+                  ? 'Salvando...'
+                  : isEditing
+                    ? 'Salvar Alterações'
+                    : 'Cadastrar Produto'}
               </Button>
             </div>
           </form>

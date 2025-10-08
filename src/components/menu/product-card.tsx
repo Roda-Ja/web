@@ -83,7 +83,6 @@ export function ProductCard({
   }
 
   const handleDelete = () => {
-    // TODO: Implementar chamada para API de exclusão
     toast.success(`${product.name} foi excluído com sucesso!`)
   }
 
@@ -181,7 +180,6 @@ export function ProductCard({
 
       <CardFooter className="pt-2 pb-4">
         {isAdmin ? (
-          // Para admins, mostrar informações do produto
           <div className="w-full text-center">
             <div className="text-muted-foreground text-sm">
               {product.isAvailable ? (
@@ -192,7 +190,6 @@ export function ProductCard({
             </div>
           </div>
         ) : (
-          // Para usuários públicos, manter os botões do carrinho
           <>
             {inCart ? (
               <div className="flex w-full items-center justify-between gap-2">

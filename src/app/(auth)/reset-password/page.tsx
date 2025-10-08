@@ -1,52 +1,59 @@
 'use client'
-import { GalleryVerticalEnd } from 'lucide-react'
+import { GalleryVerticalEnd, ArrowLeft } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect } from 'react'
 
 import { Form } from '@/components/form'
 import { Button } from '@/components/ui/button'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { useSignUp } from '@/hooks/use-auth'
-import { useAuthRedirect } from '@/hooks/use-auth-redirect'
+import { useResetPassword } from '@/hooks/use-auth'
 
-const signUpSchema = z
-  .object(
-    {
-      name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
-      email: z.string().email('Email inválido'),
-      password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
-      confirmPassword: z.string(),
-    },
-    { required_error: 'Esse campo é obrigatório!' },
-  )
+const resetPasswordSchema = z
+  .object({
+    password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
+    confirmPassword: z.string(),
+  })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'As senhas não coincidem',
     path: ['confirmPassword'],
   })
 
-type SignUpData = z.infer<typeof signUpSchema>
+type ResetPasswordData = z.infer<typeof resetPasswordSchema>
 
-export default function SignUpPage() {
-  const signUpMutation = useSignUp()
+export default function ResetPasswordPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const resetPasswordMutation = useResetPassword()
 
-  // Redirecionar se já estiver logado
-  const isAuthenticated = useAuthRedirect()
-
-  const signUpForm = useForm<SignUpData>({
-    resolver: zodResolver(signUpSchema),
+  const form = useForm<ResetPasswordData>({
+    resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      name: '',
-      email: '',
       password: '',
       confirmPassword: '',
     },
   })
-  const { handleSubmit } = signUpForm
+  const { handleSubmit, setError } = form
 
-  async function handleSignUp(data: SignUpData) {
-    // Remover confirmPassword antes de enviar para a API
-    const { confirmPassword, ...signUpData } = data
-    signUpMutation.mutate(signUpData)
+  const token = searchParams.get('token')
+
+  useEffect(() => {
+    if (!token) {
+      setError('root', { message: 'Token de recuperação não encontrado' })
+    }
+  }, [token, setError])
+
+  async function handleResetPassword(data: ResetPasswordData) {
+    if (!token) {
+      setError('root', { message: 'Token de recuperação não encontrado' })
+      return
+    }
+
+    resetPasswordMutation.mutate({
+      token,
+      password: data.password,
+    })
   }
 
   return (
@@ -65,74 +72,60 @@ export default function SignUpPage() {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs sm:max-w-sm">
-            <FormProvider {...signUpForm}>
+            <FormProvider {...form}>
               <form
                 className="flex flex-col gap-4 sm:gap-6"
-                onSubmit={handleSubmit(handleSignUp)}
+                onSubmit={handleSubmit(handleResetPassword)}
               >
                 <div className="flex flex-col items-center gap-2 text-center">
-                  <h1 className="text-xl font-bold sm:text-2xl">
-                    Crie uma conta
-                  </h1>
+                  <h1 className="text-xl font-bold sm:text-2xl">Nova senha</h1>
                   <p className="text-muted-foreground text-xs text-balance sm:text-sm">
-                    Insira seus dados abaixo para criar sua conta
+                    Digite sua nova senha abaixo
                   </p>
                 </div>
                 <div className="grid gap-4 sm:gap-6">
                   <Form.Field>
-                    <Form.Label htmlFor="name-input">Nome</Form.Label>
-                    <Form.Input
-                      name="name"
-                      id="name-input"
-                      placeholder="Fulano de Tal"
-                    />
-                  </Form.Field>
-                  <Form.Field>
-                    <Form.Label htmlFor="email-input">Email</Form.Label>
-                    <Form.Input
-                      name="email"
-                      id="email-input"
-                      type="email"
-                      placeholder="m@example.com"
-                    />
-                  </Form.Field>
-                  <Form.Field>
-                    <Form.Label htmlFor="password-input">Senha</Form.Label>
+                    <Form.Label htmlFor="password-input">Nova senha</Form.Label>
                     <Form.Input
                       name="password"
                       id="password-input"
                       type="password"
+                      placeholder="Digite sua nova senha"
                     />
                   </Form.Field>
+
                   <Form.Field>
                     <Form.Label htmlFor="confirm-password-input">
-                      Confirme sua senha
+                      Confirme sua nova senha
                     </Form.Label>
                     <Form.Input
                       name="confirmPassword"
                       id="confirm-password-input"
                       type="password"
+                      placeholder="Confirme sua nova senha"
                     />
                   </Form.Field>
 
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={signUpMutation.isPending}
+                    disabled={resetPasswordMutation.isPending || !token}
                   >
-                    {signUpMutation.isPending
-                      ? 'Criando conta...'
-                      : 'Criar conta'}
+                    {resetPasswordMutation.isPending
+                      ? 'Alterando senha...'
+                      : 'Alterar senha'}
                   </Button>
                 </div>
                 <div className="text-center text-xs sm:text-sm">
-                  Já possui uma conta?{' '}
-                  <a
-                    href="/sign-in"
-                    className="underline underline-offset-4"
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="h-auto p-0 text-xs sm:text-sm"
+                    onClick={() => router.push('/sign-in')}
                   >
-                    Entre
-                  </a>
+                    <ArrowLeft className="mr-1 size-3" />
+                    Voltar ao login
+                  </Button>
                 </div>
               </form>
             </FormProvider>

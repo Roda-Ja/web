@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/sidebar'
 import { useNavigationSync } from '@/hooks/use-navigation-sync'
 import { useAuthStore } from '@/lib/stores/auth-store'
+import { useRequireAuth } from '@/hooks/use-auth-redirect'
 // import { File, FileText } from 'lucide-react'
 import { ReactNode } from 'react'
 
@@ -22,6 +23,9 @@ export default function AppLayout({
 }: Readonly<{
   children: ReactNode
 }>) {
+  // Verificar se o usuário está autenticado
+  useRequireAuth()
+
   // Sincronizar a URL com a store de navegação
   useNavigationSync()
 

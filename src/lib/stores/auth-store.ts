@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 interface User {
   id: string
@@ -6,12 +7,18 @@ interface User {
   email: string
   role: 'master' | 'establishment_admin' | 'user'
   establishmentId?: string
+  createdAt?: string
 }
 
 interface AuthState {
   user: User | null
   isAuthenticated: boolean
+  accessToken: string | null
+  refreshToken: string | null
+  isLoading: boolean
   setUser: (user: User) => void
+  setTokens: (accessToken: string, refreshToken: string) => void
+  login: (user: User, accessToken: string, refreshToken: string) => void
   logout: () => void
   isMaster: () => boolean
   isEstablishmentAdmin: () => boolean
@@ -21,62 +28,84 @@ interface AuthState {
   canManageEstablishments: () => boolean
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
-  user: {
-    id: '1',
-    name: 'Roda Ja Master',
-    email: 'master@rodaja.com',
-    role: 'master',
-    establishmentId: undefined,
-    // id: '3',
-    // name: 'Admin Pastelaria',
-    // email: 'admin@pastelaria.com',
-    // role: 'establishment_admin',
-    // establishmentId: '3',
-  },
-  isAuthenticated: true,
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set, get) => ({
+      user: null,
+      isAuthenticated: false,
+      accessToken: null,
+      refreshToken: null,
+      isLoading: false,
 
-  setUser: (user) => set({ user, isAuthenticated: !!user }),
+      setUser: (user) => set({ user, isAuthenticated: !!user }),
 
-  logout: () => set({ user: null, isAuthenticated: false }),
+      setTokens: (accessToken, refreshToken) =>
+        set({ accessToken, refreshToken }),
 
-  isMaster: () => {
-    const { user } = get()
-    return user?.role === 'master'
-  },
+      login: (user, accessToken, refreshToken) =>
+        set({
+          user,
+          accessToken,
+          refreshToken,
+          isAuthenticated: true,
+        }),
 
-  isEstablishmentAdmin: () => {
-    const { user } = get()
-    return user?.role === 'establishment_admin'
-  },
+      logout: () =>
+        set({
+          user: null,
+          accessToken: null,
+          refreshToken: null,
+          isAuthenticated: false,
+        }),
 
-  canManageEstablishment: (establishmentId) => {
-    const { user } = get()
-    if (!user) return false
+      isMaster: () => {
+        const { user } = get()
+        return user?.role === 'master'
+      },
 
-    // Master pode gerenciar qualquer estabelecimento
-    if (user.role === 'master') return true
+      isEstablishmentAdmin: () => {
+        const { user } = get()
+        return user?.role === 'establishment_admin'
+      },
 
-    // Establishment Admin pode gerenciar apenas seu estabelecimento
-    if (user.role === 'establishment_admin') {
-      return user.establishmentId === establishmentId
-    }
+      canManageEstablishment: (establishmentId) => {
+        const { user } = get()
+        if (!user) return false
 
-    return false
-  },
+        // Master pode gerenciar qualquer estabelecimento
+        if (user.role === 'master') return true
 
-  canAccessAdminPanel: () => {
-    const { user } = get()
-    return user?.role === 'master'
-  },
+        // Establishment Admin pode gerenciar apenas seu estabelecimento
+        if (user.role === 'establishment_admin') {
+          return user.establishmentId === establishmentId
+        }
 
-  canManageDrivers: () => {
-    const { user } = get()
-    return user?.role === 'master'
-  },
+        return false
+      },
 
-  canManageEstablishments: () => {
-    const { user } = get()
-    return user?.role === 'master'
-  },
-}))
+      canAccessAdminPanel: () => {
+        const { user } = get()
+        return user?.role === 'master'
+      },
+
+      canManageDrivers: () => {
+        const { user } = get()
+        return user?.role === 'master'
+      },
+
+      canManageEstablishments: () => {
+        const { user } = get()
+        return user?.role === 'master'
+      },
+    }),
+    {
+      name: 'auth-storage',
+      partialize: (state) => ({
+        user: state.user,
+        accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
+        isAuthenticated: state.isAuthenticated,
+      }),
+    },
+  ),
+)

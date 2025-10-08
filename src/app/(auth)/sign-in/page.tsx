@@ -16,10 +16,12 @@ import { getAllEstablishments } from '@/lib/data/establishments'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm } from 'react-hook-form'
 import z from 'zod'
+import { useSignIn } from '@/hooks/use-auth'
+import { useAuthRedirect } from '@/hooks/use-auth-redirect'
 
 const signInSchema = z.object({
-  email: z.string({ required_error: 'Informe seu email!' }).email(),
-  password: z.string({ required_error: 'Informe sua senha!' }),
+  email: z.string().min(1, 'Email é obrigatório').email('Email inválido'),
+  password: z.string().min(1, 'Senha é obrigatória'),
 })
 
 type SignInData = z.infer<typeof signInSchema>
@@ -28,22 +30,22 @@ export default function LoginPage() {
   const router = useRouter()
   const setUser = useAuthStore((state) => state.setUser)
   const establishments = getAllEstablishments()
+  const signInMutation = useSignIn()
+
+  // Redirecionar se já estiver logado
+  const isAuthenticated = useAuthRedirect()
 
   const signInForm = useForm<SignInData>({
     resolver: zodResolver(signInSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
   })
   const { handleSubmit } = signInForm
 
   async function handleSignIn(data: SignInData) {
-    // Simular login - redirecionar para dashboard
-    setUser({
-      id: '1',
-      name: 'Roda Ja Master',
-      email: data.email,
-      role: 'master',
-      establishmentId: undefined, // Master não tem estabelecimento específico
-    })
-    router.push('/dashboard')
+    signInMutation.mutate(data)
   }
 
   const handleQuickLogin = (
@@ -119,7 +121,7 @@ export default function LoginPage() {
                       <Form.Label>Senha</Form.Label>
 
                       <a
-                        href="#"
+                        href="/forgot-password"
                         className="ml-auto text-xs underline-offset-4 hover:underline sm:text-sm"
                       >
                         Esqueceu sua senha?
@@ -136,8 +138,9 @@ export default function LoginPage() {
                   <Button
                     type="submit"
                     className="w-full"
+                    disabled={signInMutation.isPending}
                   >
-                    Entrar
+                    {signInMutation.isPending ? 'Entrando...' : 'Entrar'}
                   </Button>
                 </div>
                 <div className="text-center text-xs sm:text-sm">

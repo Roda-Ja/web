@@ -29,15 +29,12 @@ export function AddCategoryDialog({ onCategoryAdded }: AddCategoryDialogProps) {
       return
     }
 
-    // Aqui você faria a chamada para a API para criar a categoria
     toast.success(`Categoria "${categoryName}" criada com sucesso!`)
 
-    // Notificar o componente pai sobre a nova categoria
     if (onCategoryAdded) {
       onCategoryAdded(categoryName.trim())
     }
 
-    // Limpar e fechar
     setCategoryName('')
     setOpen(false)
   }

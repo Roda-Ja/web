@@ -13,5 +13,17 @@ export function Input({ name, ...props }: InputProps) {
     name,
     control,
   })
-  return <InputLib {...props} {...field} />
+
+  // Garantir que o value seja sempre uma string para evitar o erro de controlled/uncontrolled
+  const controlledField = {
+    ...field,
+    value: field.value ?? '',
+  }
+
+  return (
+    <InputLib
+      {...props}
+      {...controlledField}
+    />
+  )
 }
