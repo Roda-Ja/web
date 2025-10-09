@@ -12,8 +12,7 @@ import {
 import { FormProvider } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { Plus, X } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -62,7 +61,6 @@ export function AddProductDialog({
   showAddCategory = true,
 }: AddProductDialogProps) {
   const [open, setOpen] = useState(false)
-  const [tags, setTags] = useState<string[]>([])
   const [availableCategories, setAvailableCategories] = useState(categories)
   const queryClient = useQueryClient()
   const { mutateAsync: createProduct, isPending } = useMutation({
@@ -104,10 +102,6 @@ export function AddProductDialog({
         imageUrl: editingProduct.image,
         isActive: editingProduct.isAvailable ?? true,
       })
-
-      if (editingProduct.tag) {
-        setTags([editingProduct.tag])
-      }
     }
   }, [editingProduct, form])
 
@@ -129,7 +123,6 @@ export function AddProductDialog({
     }
 
     form.reset()
-    setTags([])
     setOpen(false)
     if (onClose) onClose()
   }
@@ -138,23 +131,10 @@ export function AddProductDialog({
     setOpen(newOpen)
     if (!newOpen && !isEditing) {
       form.reset()
-      setTags([])
     }
   }
 
   const handleCategoryAdded = (_categoryName: string) => {}
-
-  const addTag = () => {
-    const tag = form.getValues('tag')
-    if (tag && !tags.includes(tag)) {
-      setTags([...tags, tag])
-      form.setValue('tag', '')
-    }
-  }
-
-  const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter((tag) => tag !== tagToRemove))
-  }
 
   if (isEditing) {
     return (
@@ -269,49 +249,6 @@ export function AddProductDialog({
                   <span className="text-xs text-red-500">
                     {form.formState.errors.imageUrl.message}
                   </span>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Tags/Promoções</label>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Ex: 15% Off, Oferta Especial"
-                    {...form.register('tag')}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        addTag()
-                      }
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    onClick={addTag}
-                    variant="outline"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                {tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {tags.map((tag) => (
-                      <Badge
-                        key={tag}
-                        variant="secondary"
-                        className="gap-1"
-                      >
-                        {tag}
-                        <button
-                          type="button"
-                          onClick={() => removeTag(tag)}
-                          className="hover:bg-destructive/20 ml-1 rounded-full p-0.5"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
                 )}
               </div>
 
@@ -483,49 +420,6 @@ export function AddProductDialog({
                 <span className="text-xs text-red-500">
                   {form.formState.errors.imageUrl.message}
                 </span>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Tags/Promoções</label>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Ex: 15% Off, Oferta Especial"
-                  {...form.register('tag')}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      addTag()
-                    }
-                  }}
-                />
-                <Button
-                  type="button"
-                  onClick={addTag}
-                  variant="outline"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              {tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {tags.map((tag) => (
-                    <Badge
-                      key={tag}
-                      variant="secondary"
-                      className="gap-1"
-                    >
-                      {tag}
-                      <button
-                        type="button"
-                        onClick={() => removeTag(tag)}
-                        className="hover:bg-destructive/20 ml-1 rounded-full p-0.5"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
               )}
             </div>
 

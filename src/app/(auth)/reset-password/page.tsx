@@ -1,7 +1,7 @@
 'use client'
 import { GalleryVerticalEnd, ArrowLeft } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 
 import { Form } from '@/components/form'
 import { Button } from '@/components/ui/button'
@@ -23,7 +23,7 @@ const resetPasswordSchema = z
 
 type ResetPasswordData = z.infer<typeof resetPasswordSchema>
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const resetPasswordMutation = useResetPassword()
@@ -58,8 +58,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <AuthRoute>
-      <div className="grid min-h-svh lg:grid-cols-2">
+    <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-4 sm:p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
           <a
@@ -142,6 +141,21 @@ export default function ResetPasswordPage() {
         />
       </div>
     </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <AuthRoute>
+      <Suspense
+        fallback={
+          <div className="flex min-h-svh items-center justify-center">
+            Carregando...
+          </div>
+        }
+      >
+        <ResetPasswordForm />
+      </Suspense>
     </AuthRoute>
   )
 }
