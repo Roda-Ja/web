@@ -6,19 +6,15 @@ import type {
   SignInResponse,
 } from './types'
 
-// Serviços de autenticação
 export const authApi = {
-  // Cadastro de estabelecimento
   signUp: async (data: SignUpRequest): Promise<SignUpResponse> => {
     const response = await apiClient.post('/establishment/sign-up', data)
     return response.data
   },
 
-  // Login de estabelecimento
   signIn: async (data: SignInRequest): Promise<SignInResponse> => {
     const response = await apiClient.post('/establishment/sign-in', data)
 
-    // Extrair tokens dos headers também (conforme documentação)
     const accessToken =
       response.data.token?.accessToken ||
       response.headers.authorization?.replace('Bearer ', '')
@@ -34,7 +30,6 @@ export const authApi = {
     }
   },
 
-  // Recuperação de senha
   forgotPassword: async (email: string): Promise<{ message: string }> => {
     const response = await apiClient.post('/establishment/forgot-password', {
       email,
@@ -42,12 +37,10 @@ export const authApi = {
     return response.data
   },
 
-  // Reset de senha
   resetPassword: async (token: string, password: string): Promise<void> => {
     await apiClient.post('/establishment/reset-password', { token, password })
   },
 
-  // Refresh token
   refreshToken: async (
     refreshToken: string,
   ): Promise<{ accessToken: string }> => {

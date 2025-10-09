@@ -15,7 +15,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { X } from 'lucide-react'
 
 export type ProductFilterState = {
   search?: string
@@ -116,16 +115,8 @@ export function ProductFilters({ value, onChange }: ProductFiltersProps) {
             <Button
               variant="outline"
               size="sm"
-              className="gap-1"
             >
               {options.find((o) => o.value === filter)?.label}
-              <X
-                className="h-3.5 w-3.5 opacity-60"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  removeFilter(filter)
-                }}
-              />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-80">

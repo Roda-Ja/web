@@ -40,7 +40,6 @@ export default function EstablishmentCardapioPage({
   const [mounted, setMounted] = useState<boolean>(false)
   const [page, setPage] = useState<number>(1)
   const [limit, setLimit] = useState<number>(20)
-  // Filtros
   const [search, setSearch] = useState<string>('')
   const [sort, setSort] = useState<
     'name' | 'price' | 'createdAt' | 'updatedAt' | ''
@@ -63,6 +62,11 @@ export default function EstablishmentCardapioPage({
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  const { data: metricsData } = useQuery({
+    queryKey: ['product-metrics'],
+    queryFn: () => productsApi.getMetrics(),
+  })
 
   const { data: listData, isLoading } = useQuery({
     queryKey: [
@@ -156,7 +160,7 @@ export default function EstablishmentCardapioPage({
         : apiProducts.filter((p) => p.category === category)
 
     return (
-      <div className="grid grid-cols-[repeat(auto-fill,_minmax(280px,_1fr))] gap-3">
+      <div className="grid grid-cols-[repeat(auto-fill,_minmax(320px,_1fr))] gap-4">
         {products.length === 0 && (
           <div className="text-muted-foreground col-span-full rounded-md border p-6 text-center text-sm">
             {isLoading ? 'Carregando produtos…' : 'Nenhum produto encontrado.'}
@@ -217,7 +221,7 @@ export default function EstablishmentCardapioPage({
           </CardHeader>
           <CardContent>
             <div className="text-xl font-bold sm:text-2xl">
-              {meta?.totalItems ?? 0}
+              {metricsData?.totalProducts ?? 0}
             </div>
           </CardContent>
         </Card>
@@ -230,7 +234,7 @@ export default function EstablishmentCardapioPage({
           </CardHeader>
           <CardContent>
             <div className="text-xl font-bold sm:text-2xl">
-              {establishment.products.filter((p) => p.isAvailable).length}
+              {metricsData?.activeProducts ?? 0}
             </div>
           </CardContent>
         </Card>
@@ -243,7 +247,7 @@ export default function EstablishmentCardapioPage({
           </CardHeader>
           <CardContent>
             <div className="text-xl font-bold sm:text-2xl">
-              {establishment.categories.length}
+              {metricsData?.totalProductCategories ?? 0}
             </div>
           </CardContent>
         </Card>

@@ -23,6 +23,7 @@ import { useEffect } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { productsApi } from '@/lib/api'
 import { toast } from 'sonner'
+import { AddCategoryDialog } from '@/components/menu/add-category-dialog'
 
 const productSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
@@ -389,8 +390,19 @@ export function AddProductDialog({
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between">
                   <label className="text-sm font-medium">Categoria</label>
+                  {showAddCategory && (
+                    <AddCategoryDialog
+                      onCategoryAdded={(id, name) => {
+                        setAvailableCategories((prev) => [
+                          ...prev,
+                          { value: id, label: name },
+                        ])
+                        form.setValue('categoryId', id)
+                      }}
+                    />
+                  )}
                 </div>
                 <select
                   {...form.register('categoryId')}

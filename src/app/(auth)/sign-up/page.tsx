@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useSignUp } from '@/hooks/use-auth'
-import { useAuthRedirect } from '@/hooks/use-auth-redirect'
+import { AuthRoute } from '@/components/auth-guard'
 
 const signUpSchema = z
   .object(
@@ -29,9 +29,6 @@ type SignUpData = z.infer<typeof signUpSchema>
 export default function SignUpPage() {
   const signUpMutation = useSignUp()
 
-  // Redirecionar se já estiver logado
-  const isAuthenticated = useAuthRedirect()
-
   const signUpForm = useForm<SignUpData>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -50,7 +47,8 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="grid min-h-svh lg:grid-cols-2">
+    <AuthRoute>
+      <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-4 sm:p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
           <a
@@ -147,5 +145,6 @@ export default function SignUpPage() {
         />
       </div>
     </div>
+    </AuthRoute>
   )
 }

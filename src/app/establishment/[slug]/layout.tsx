@@ -1,8 +1,11 @@
+'use client'
+
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { EstablishmentSidebar } from '@/components/establishment-sidebar'
 import { getEstablishmentBySlug } from '@/lib/data/establishments'
 import { notFound } from 'next/navigation'
 import { use } from 'react'
+import { ProtectedRoute } from '@/components/auth-guard'
 
 interface EstablishmentLayoutProps {
   children: React.ReactNode
@@ -23,9 +26,11 @@ export default function EstablishmentLayout({
   }
 
   return (
-    <SidebarProvider>
-      <EstablishmentSidebar establishmentSlug={establishment.slug} />
-      <SidebarInset>{children}</SidebarInset>
-    </SidebarProvider>
+    <ProtectedRoute>
+      <SidebarProvider>
+        <EstablishmentSidebar establishmentSlug={establishment.slug} />
+        <SidebarInset>{children}</SidebarInset>
+      </SidebarProvider>
+    </ProtectedRoute>
   )
 }

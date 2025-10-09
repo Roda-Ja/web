@@ -16,6 +16,8 @@ interface AuthState {
   accessToken: string | null
   refreshToken: string | null
   isLoading: boolean
+  isHydrated: boolean
+  setHydrated: (hydrated: boolean) => void
   setUser: (user: User) => void
   setTokens: (accessToken: string, refreshToken: string) => void
   login: (user: User, accessToken: string, refreshToken: string) => void
@@ -36,6 +38,9 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       refreshToken: null,
       isLoading: false,
+      isHydrated: false,
+
+      setHydrated: (hydrated) => set({ isHydrated: hydrated }),
 
       setUser: (user) => set({ user, isAuthenticated: !!user }),
 
@@ -72,10 +77,8 @@ export const useAuthStore = create<AuthState>()(
         const { user } = get()
         if (!user) return false
 
-        // Master pode gerenciar qualquer estabelecimento
         if (user.role === 'master') return true
 
-        // Establishment Admin pode gerenciar apenas seu estabelecimento
         if (user.role === 'establishment_admin') {
           return user.establishmentId === establishmentId
         }
@@ -106,6 +109,9 @@ export const useAuthStore = create<AuthState>()(
         refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated(true)
+      },
     },
   ),
 )

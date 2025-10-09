@@ -14,7 +14,6 @@ export function useSignUp() {
     mutationFn: (data: SignUpRequest) => authApi.signUp(data),
     onSuccess: (data) => {
       toast.success('Conta criada com sucesso!')
-      // Redirecionar para login após cadastro bem-sucedido
       router.push('/sign-in')
     },
     onError: (error: any) => {
@@ -32,7 +31,6 @@ export function useSignIn() {
   return useMutation({
     mutationFn: (data: SignInRequest) => authApi.signIn(data),
     onSuccess: (data) => {
-      // Mapear dados do usuário para o formato do store
       const slugify = (text: string) =>
         text
           .toLowerCase()
@@ -43,7 +41,6 @@ export function useSignIn() {
           .replace(/--+/g, '-')
           .replace(/^-+|-+$/g, '')
 
-      // Derivar establishmentId caso a API não envie
       let derivedEstablishmentId = data.user.establishmentId
       if (!derivedEstablishmentId && data.user.entity === 'establishment') {
         const establishments = getAllEstablishments()
@@ -56,7 +53,6 @@ export function useSignIn() {
         id: data.user.id,
         name: data.user.name,
         email: data.user.email,
-        // Se a API indicar entity: 'establishment', trata como admin de estabelecimento
         role: (data.user.role ||
           (data.user.entity === 'establishment'
             ? 'establishment_admin'
@@ -66,12 +62,10 @@ export function useSignIn() {
         createdAt: data.user.createdAt,
       }
 
-      // Salvar no store
       login(user, data.token.accessToken, data.token.refreshToken)
 
       toast.success('Login realizado com sucesso!')
 
-      // Redirecionar baseado na role
       if (user.role === 'master') {
         router.push('/dashboard')
       } else {
@@ -88,8 +82,8 @@ export function useSignIn() {
 export function useForgotPassword() {
   return useMutation({
     mutationFn: (email: string) => authApi.forgotPassword(email),
-    onSuccess: () => {
-      toast.success('Email de recuperação enviado!')
+    onSuccess: (data) => {
+      toast.success(data.message || 'Email de recuperação enviado!')
     },
     onError: (error: any) => {
       const message =
@@ -130,7 +124,6 @@ export function useRefreshToken() {
       setTokens(data.accessToken, refreshToken || '')
     },
     onError: () => {
-      // Se o refresh falhar, fazer logout
       useAuthStore.getState().logout()
     },
   })

@@ -3,6 +3,9 @@ import type {
   PaginatedResponse,
   ProductResponse,
   CreateProductRequest,
+  ProductMetricsResponse,
+  CreateCategoryRequest,
+  CategoryResponse,
 } from './types'
 
 export interface ListProductsParams {
@@ -25,7 +28,6 @@ export const productsApi = {
   async list(
     params: ListProductsParams = {},
   ): Promise<PaginatedResponse<ProductResponse>> {
-    // garantir que apenas valores definidos sejam enviados e em tipos simples
     const cleaned: Record<string, string | number> = {}
     Object.entries(params).forEach(([key, value]) => {
       if (value === undefined || value === null || value === '') return
@@ -39,6 +41,19 @@ export const productsApi = {
   },
   async create(payload: CreateProductRequest): Promise<ProductResponse> {
     const response = await apiClient.post('/establishment/product/new', payload)
+    return response.data
+  },
+  async getMetrics(): Promise<ProductMetricsResponse> {
+    const response = await apiClient.get('/establishment/product/metrics')
+    return response.data
+  },
+  async createCategory(
+    payload: CreateCategoryRequest,
+  ): Promise<CategoryResponse> {
+    const response = await apiClient.post(
+      '/establishment/product/category/new',
+      payload,
+    )
     return response.data
   },
 }

@@ -1,4 +1,3 @@
-// Tipos para autenticação
 export interface SignUpRequest {
   name: string
   email: string
@@ -41,7 +40,6 @@ export interface ApiError {
   error: string
 }
 
-// Tipos para produtos (para referência futura)
 export interface ProductResponse {
   id: string
   name: string
@@ -54,7 +52,6 @@ export interface ProductResponse {
   updatedAt: string
 }
 
-// Criação de produto
 export interface CreateProductRequest {
   name: string
   categoryId: string
@@ -78,7 +75,6 @@ export interface EstablishmentResponse {
   createdAt: string
 }
 
-// Tipos para paginação
 export interface PaginationMeta {
   currentPage: number
   itemsPerPage: number
@@ -89,4 +85,20 @@ export interface PaginationMeta {
 export interface PaginatedResponse<T> {
   data: T[]
   meta: PaginationMeta
+}
+
+export interface ProductMetricsResponse {
+  totalProducts: number
+  activeProducts: number
+  totalProductCategories: number
+}
+
+export interface CreateCategoryRequest {
+  name: string
+}
+
+export interface CategoryResponse {
+  id: string
+  name: string
+  createdAt: string
 }

@@ -87,8 +87,8 @@ export function ProductCard({
   }
 
   return (
-    <Card className={cn('gap-0 overflow-hidden p-0', className)}>
-      <div className="relative h-[220px] w-full">
+    <Card className={cn('flex flex-col gap-0 overflow-hidden p-0', className)}>
+      <div className="relative h-[220px] w-full flex-shrink-0">
         <img
           src={product.image}
           alt={product.name}
@@ -152,7 +152,7 @@ export function ProductCard({
         )}
       </div>
 
-      <CardContent className="py-4 pb-2">
+      <CardContent className="flex-grow py-4 pb-2">
         <div className="text-foreground line-clamp-1 text-sm font-medium">
           {product.name}
         </div>
@@ -168,7 +168,7 @@ export function ProductCard({
           )}
         </div>
 
-        <p className="text-muted-foreground mt-2 line-clamp-2 text-xs leading-relaxed">
+        <p className="text-muted-foreground mt-2 text-justify text-xs leading-relaxed">
           {product.description}
         </p>
         {inCart && (
@@ -178,7 +178,7 @@ export function ProductCard({
         )}
       </CardContent>
 
-      <CardFooter className="pt-2 pb-4">
+      <CardFooter className="flex-shrink-0 pt-2 pb-4">
         {isAdmin ? (
           <div className="w-full text-center">
             <div className="text-muted-foreground text-sm">

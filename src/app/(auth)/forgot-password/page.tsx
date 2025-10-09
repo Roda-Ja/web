@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useForgotPassword } from '@/hooks/use-auth'
+import { AuthRoute } from '@/components/auth-guard'
 
 const forgotPasswordSchema = z.object({
   email: z.string().min(1, 'Email é obrigatório').email('Email inválido'),
@@ -32,7 +33,8 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="grid min-h-svh lg:grid-cols-2">
+    <AuthRoute>
+      <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-4 sm:p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
           <a
@@ -105,5 +107,6 @@ export default function ForgotPasswordPage() {
         />
       </div>
     </div>
+    </AuthRoute>
   )
 }
