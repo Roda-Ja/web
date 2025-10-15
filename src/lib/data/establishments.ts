@@ -24,6 +24,7 @@ export interface Product {
   originalPrice?: number
   image: string
   category: string
+  categoryId?: string
   tag?: string
   rating: number
   isAvailable: boolean
@@ -164,8 +165,7 @@ export const establishments: Establishment[] = [
       {
         id: '8',
         name: 'Pastel de Frango',
-        description:
-          'Pastel delicioso com frango desfiado, catupiry e milho.',
+        description: 'Pastel delicioso com frango desfiado, catupiry e milho.',
         price: 9.5,
         image:
           'https://images.unsplash.com/photo-1546554137-f86b9593a222?w=400',
@@ -285,7 +285,8 @@ export const establishments: Establishment[] = [
       {
         id: '16',
         name: 'Suco Natural',
-        description: 'Suco natural de frutas da estação - Laranja, Maracujá, Limão.',
+        description:
+          'Suco natural de frutas da estação - Laranja, Maracujá, Limão.',
         price: 7.9,
         image:
           'https://images.unsplash.com/photo-1581636625402-29b2a704ef13?w=400',
@@ -353,8 +354,7 @@ export const establishments: Establishment[] = [
       {
         id: '20',
         name: 'Pizza Calabresa',
-        description:
-          'Pizza com linguiça calabresa, cebola e mussarela.',
+        description: 'Pizza com linguiça calabresa, cebola e mussarela.',
         price: 30.9,
         image:
           'https://images.unsplash.com/photo-1574484284002-952d92456975?w=400',
@@ -388,4 +388,3 @@ export function getEstablishmentBySlug(
 export function getAllEstablishments(): Establishment[] {
   return establishments.filter((est) => est.isActive)
 }
-

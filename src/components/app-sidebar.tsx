@@ -64,11 +64,6 @@ const getNavigationData = (isMaster: boolean) => ({
       url: isMaster ? '/cardapio' : getEstablishmentUrl(),
       icon: ShoppingBasket,
     },
-    {
-      name: 'Avaliações',
-      url: isMaster ? '/reviews' : getEstablishmentUrl('reviews'),
-      icon: ScrollText,
-    },
     // ...(isMaster
     //   ? [
     //       {

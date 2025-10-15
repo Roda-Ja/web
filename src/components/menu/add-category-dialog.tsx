@@ -16,7 +16,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { productsApi } from '@/lib/api'
 
 type AddCategoryDialogProps = {
-  onCategoryAdded?: (categoryId: string, categoryName: string) => void
+  onCategoryAdded?: (categoryId: string) => void
 }
 
 export function AddCategoryDialog({ onCategoryAdded }: AddCategoryDialogProps) {
@@ -30,9 +30,10 @@ export function AddCategoryDialog({ onCategoryAdded }: AddCategoryDialogProps) {
       toast.success('Categoria criada com sucesso!')
       queryClient.invalidateQueries({ queryKey: ['product-metrics'] })
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       const message =
-        error?.response?.data?.message || 'Erro ao criar categoria'
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || 'Erro ao criar categoria'
       toast.error(message)
     },
   })
@@ -49,7 +50,7 @@ export function AddCategoryDialog({ onCategoryAdded }: AddCategoryDialogProps) {
       const response = await createCategory({ name: categoryName.trim() })
 
       if (onCategoryAdded) {
-        onCategoryAdded(response.id, response.name)
+        onCategoryAdded(response.value)
       }
 
       setCategoryName('')

@@ -42,23 +42,44 @@ export function useSignIn() {
           .replace(/^-+|-+$/g, '')
 
       let derivedEstablishmentId = data.user.establishmentId
-      if (!derivedEstablishmentId && data.user.entity === 'establishment') {
+      let finalRole: 'master' | 'establishment_admin' | 'user' = 'user'
+
+      // Se tem role explícito, usar ele
+      if (data.user.role) {
+        finalRole = data.user.role
+      } else if (data.user.entity === 'establishment') {
+        // Se é establishment, tentar encontrar o estabelecimento
         const establishments = getAllEstablishments()
         const possibleSlug = slugify(data.user.name || '')
         const match = establishments.find((e) => e.slug === possibleSlug)
-        if (match) derivedEstablishmentId = match.id
+        
+        if (match) {
+          derivedEstablishmentId = match.id
+          finalRole = 'establishment_admin'
+        } else if (data.user.establishmentId) {
+          // Se tem establishmentId mas não encontrou na lista local, ainda considera admin
+          const establishmentExists = establishments.find(
+            (e) => e.id === data.user.establishmentId,
+          )
+          if (establishmentExists) {
+            derivedEstablishmentId = data.user.establishmentId
+            finalRole = 'establishment_admin'
+          } else {
+            // Se não encontrou estabelecimento válido, tratar como usuário normal
+            finalRole = 'user'
+          }
+        } else {
+          // Se é entity establishment mas não tem estabelecimento, tratar como user
+          finalRole = 'user'
+        }
       }
 
       const user = {
         id: data.user.id,
         name: data.user.name,
         email: data.user.email,
-        role: (data.user.role ||
-          (data.user.entity === 'establishment'
-            ? 'establishment_admin'
-            : 'user')) as 'master' | 'establishment_admin' | 'user',
-        establishmentId:
-          derivedEstablishmentId || data.user.establishmentId || data.user.id,
+        role: finalRole,
+        establishmentId: derivedEstablishmentId || data.user.establishmentId,
         createdAt: data.user.createdAt,
       }
 

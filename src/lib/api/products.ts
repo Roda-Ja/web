@@ -24,6 +24,12 @@ export interface ListProductsParams {
   updatedBefore?: string
 }
 
+export interface ListCategoriesParams {
+  page?: number
+  limit?: number
+  search?: string
+}
+
 export const productsApi = {
   async list(
     params: ListProductsParams = {},
@@ -53,6 +59,23 @@ export const productsApi = {
     const response = await apiClient.post(
       '/establishment/product/category/new',
       payload,
+    )
+    return response.data
+  },
+  async listCategories(
+    params: ListCategoriesParams = {},
+  ): Promise<PaginatedResponse<CategoryResponse>> {
+    const cleaned: Record<string, string | number> = {}
+    Object.entries(params).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '') return
+      if (typeof value === 'number') cleaned[key] = value
+      else cleaned[key] = String(value)
+    })
+    const response = await apiClient.get(
+      '/establishment/product/category/list',
+      {
+        params: cleaned,
+      },
     )
     return response.data
   },

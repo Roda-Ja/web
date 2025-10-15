@@ -98,7 +98,8 @@ export interface CreateCategoryRequest {
 }
 
 export interface CategoryResponse {
-  id: string
-  name: string
+  value: string
+  label: string
   createdAt: string
+  updatedAt?: string
 }

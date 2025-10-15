@@ -29,6 +29,9 @@ export default function Cardapio() {
     establishments[0]?.id || '',
   )
 
+  const [establishmentNotFound, setEstablishmentNotFound] =
+    useState<boolean>(false)
+
   // Se for admin de estabelecimento, redirecionar para a página específica do estabelecimento
   useEffect(() => {
     if (isEstablishmentAdmin && user?.establishmentId) {
@@ -52,6 +55,9 @@ export default function Cardapio() {
 
       if (userEstablishment) {
         router.replace(`/establishment/${userEstablishment.slug}/cardapio`)
+      } else {
+        // Se não encontrou o estabelecimento, marca como não encontrado
+        setEstablishmentNotFound(true)
       }
     }
   }, [isEstablishmentAdmin, user?.establishmentId, establishments, router])
@@ -72,6 +78,22 @@ export default function Cardapio() {
 
   // Se for admin de estabelecimento, não renderiza nada desta página
   if (isEstablishmentAdmin) {
+    if (establishmentNotFound) {
+      return (
+        <div className="p-8 text-center">
+          <h2 className="mb-4 text-2xl font-bold">
+            Estabelecimento Não Encontrado
+          </h2>
+          <p className="text-muted-foreground mb-4">
+            Não foi possível encontrar o estabelecimento associado à sua conta.
+          </p>
+          <p className="text-muted-foreground text-sm">
+            Entre em contato com o suporte para resolver este problema.
+          </p>
+        </div>
+      )
+    }
+
     return (
       <div className="p-8 text-center">
         <h2 className="mb-2 text-xl font-semibold">Redirecionando…</h2>
