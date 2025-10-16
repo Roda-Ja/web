@@ -29,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${poppins.variable} flex h-screen w-screen flex-col antialiased`}
+        className={`${inter.variable} ${poppins.variable} flex h-screen w-full flex-col antialiased`}
       >
         <QueryProvider>
           {children}

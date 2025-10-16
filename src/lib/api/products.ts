@@ -3,8 +3,10 @@ import type {
   PaginatedResponse,
   ProductResponse,
   CreateProductRequest,
+  UpdateProductRequest,
   ProductMetricsResponse,
   CreateCategoryRequest,
+  UpdateCategoryRequest,
   CategoryResponse,
 } from './types'
 
@@ -49,6 +51,16 @@ export const productsApi = {
     const response = await apiClient.post('/establishment/product/new', payload)
     return response.data
   },
+  async update(
+    id: string,
+    payload: UpdateProductRequest,
+  ): Promise<ProductResponse> {
+    const response = await apiClient.put(
+      `/establishment/product/update/${id}`,
+      payload,
+    )
+    return response.data
+  },
   async getMetrics(): Promise<ProductMetricsResponse> {
     const response = await apiClient.get('/establishment/product/metrics')
     return response.data
@@ -78,5 +90,21 @@ export const productsApi = {
       },
     )
     return response.data
+  },
+  async updateCategory(
+    id: string,
+    payload: UpdateCategoryRequest,
+  ): Promise<CategoryResponse> {
+    const response = await apiClient.post(
+      `/establishment/product/category/update/${id}`,
+      payload,
+    )
+    return response.data
+  },
+  async deleteCategory(id: string): Promise<void> {
+    await apiClient.delete(`/establishment/product/category/delete/${id}`)
+  },
+  async delete(id: string): Promise<void> {
+    await apiClient.delete(`/establishment/product/delete/${id}`)
   },
 }

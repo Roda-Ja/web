@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -15,6 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { CategorySelect } from '@/components/menu/category-select'
 
 export type ProductFilterState = {
   search?: string
@@ -36,34 +37,61 @@ type ProductFiltersProps = {
 }
 
 export function ProductFilters({ value, onChange }: ProductFiltersProps) {
-  const [activeFilters, setActiveFilters] = useState<string[]>([])
-
-  useEffect(() => {
-    const next: string[] = []
-    if (value.search !== undefined) next.push('search')
-    if (value.sort !== undefined || value.sortOrder !== undefined)
-      next.push('order')
-    if (value.categoryId !== undefined) next.push('category')
-    if (value.isActive !== undefined) next.push('status')
-    if (value.minPrice !== undefined || value.maxPrice !== undefined)
-      next.push('price')
-    if (value.createdAfter !== undefined || value.createdBefore !== undefined)
-      next.push('created')
-    if (value.updatedAfter !== undefined || value.updatedBefore !== undefined)
-      next.push('updated')
-    setActiveFilters((prev) => {
-      const merged = [...prev]
-      for (const f of next) if (!merged.includes(f)) merged.push(f)
-      return merged.filter((f) => next.includes(f))
-    })
+  // Filtros que têm valores (para mostrar checkmark no dropdown)
+  const filtersWithValues = useMemo(() => {
+    const filters: string[] = []
+    if (value.search !== undefined && value.search !== '')
+      filters.push('search')
+    if (
+      (value.sort !== undefined && value.sort !== '') ||
+      (value.sortOrder !== undefined && value.sortOrder !== '')
+    )
+      filters.push('order')
+    if (value.categoryId !== undefined && value.categoryId !== '')
+      filters.push('category')
+    if (value.isActive !== undefined && value.isActive !== '')
+      filters.push('status')
+    if (
+      (value.minPrice !== undefined && value.minPrice > 0) ||
+      (value.maxPrice !== undefined && value.maxPrice > 0)
+    )
+      filters.push('price')
+    if (
+      (value.createdAfter !== undefined && value.createdAfter !== '') ||
+      (value.createdBefore !== undefined && value.createdBefore !== '')
+    )
+      filters.push('created')
+    if (
+      (value.updatedAfter !== undefined && value.updatedAfter !== '') ||
+      (value.updatedBefore !== undefined && value.updatedBefore !== '')
+    )
+      filters.push('updated')
+    return filters
   }, [value])
 
+  // Filtros ativos (podem ou não ter valores ainda)
+  const [activeFilters, setActiveFilters] = React.useState<string[]>([])
+
+  // Sincronizar: adicionar filtros com valores se ainda não estiverem na lista
+  React.useEffect(() => {
+    if (filtersWithValues.length > 0) {
+      setActiveFilters((prev) => {
+        const combined = [...new Set([...prev, ...filtersWithValues])]
+        return combined
+      })
+    }
+  }, [filtersWithValues])
+
   const addFilter = (type: string) => {
-    setActiveFilters((prev) => (prev.includes(type) ? prev : [...prev, type]))
+    if (!activeFilters.includes(type)) {
+      setActiveFilters((prev) => [...prev, type])
+    }
   }
 
   const removeFilter = (type: string) => {
+    // Remover da lista de ativos
     setActiveFilters((prev) => prev.filter((f) => f !== type))
+    // Remover os valores do filtro
     if (type === 'search') onChange({ ...value, search: undefined })
     if (type === 'order')
       onChange({ ...value, sort: undefined, sortOrder: undefined })
@@ -101,7 +129,7 @@ export function ProductFilters({ value, onChange }: ProductFiltersProps) {
             <SelectItem
               key={opt.value}
               value={opt.value}
-              disabled={activeFilters.includes(opt.value)}
+              disabled={filtersWithValues.includes(opt.value)}
             >
               {opt.label}
             </SelectItem>
@@ -167,21 +195,17 @@ export function ProductFilters({ value, onChange }: ProductFiltersProps) {
             )}
 
             {filter === 'category' && (
-              <select
+              <CategorySelect
                 value={value.categoryId || ''}
-                onChange={(e) =>
+                onChange={(categoryId) =>
                   onChange({
                     ...value,
-                    categoryId: e.target.value || undefined,
+                    categoryId: categoryId || undefined,
                   })
                 }
-                className="border-input bg-background ring-offset-background placeholder:text-muted-foreground h-10 w-full rounded-md border px-3 text-sm focus-visible:outline-none"
-              >
-                <option value="">Todas as categorias</option>
-                <option value="1e064214-19fb-4f85-9b9c-7a5a393b29ba">
-                  Categoria padrão
-                </option>
-              </select>
+                placeholder="Todas as categorias"
+                allowEmpty={true}
+              />
             )}
 
             {filter === 'status' && (

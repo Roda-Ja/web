@@ -125,9 +125,9 @@ export default function EstablishmentOrdersPage({
   const totalRevenue = mockOrders.reduce((sum, order) => sum + order.total, 0)
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex w-full flex-col gap-6 p-4 md:p-6">
       <div className="mb-4">
-        <h1 className="text-3xl font-bold tracking-tight">
+        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
           Pedidos - {establishment.name}
         </h1>
         <p className="text-muted-foreground">
@@ -136,7 +136,7 @@ export default function EstablishmentOrdersPage({
       </div>
 
       {/* Cards de Estatísticas */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">
@@ -193,22 +193,27 @@ export default function EstablishmentOrdersPage({
         <h2 className="text-xl font-semibold">Pedidos Recentes</h2>
 
         {mockOrders.map((order) => (
-          <Card key={order.id}>
+          <Card
+            key={order.id}
+            className="overflow-hidden"
+          >
             <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-100">
                     <User className="h-5 w-5 text-blue-600" />
                   </div>
-                  <div>
-                    <CardTitle className="text-lg">
+                  <div className="min-w-0 flex-1">
+                    <CardTitle className="truncate text-base sm:text-lg">
                       {order.customerName}
                     </CardTitle>
-                    <CardDescription>{order.customerPhone}</CardDescription>
+                    <CardDescription className="truncate">
+                      {order.customerPhone}
+                    </CardDescription>
                   </div>
                 </div>
 
-                <div className="text-right">
+                <div className="flex items-center justify-between sm:flex-col sm:items-end sm:text-right">
                   <div className="text-lg font-bold">
                     R$ {order.total.toFixed(2)}
                   </div>
@@ -244,41 +249,41 @@ export default function EstablishmentOrdersPage({
                 </div>
 
                 {/* Informações de entrega */}
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <MapPin className="h-4 w-4" />
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="flex min-w-0 items-center gap-2 text-sm text-gray-600">
+                    <MapPin className="h-4 w-4 flex-shrink-0" />
                     <span className="truncate">{order.deliveryAddress}</span>
                   </div>
 
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Clock className="h-4 w-4" />
-                    <span>{order.deliveryTime}</span>
+                  <div className="flex min-w-0 items-center gap-2 text-sm text-gray-600">
+                    <Clock className="h-4 w-4 flex-shrink-0" />
+                    <span className="truncate">{order.deliveryTime}</span>
                   </div>
 
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <CreditCard className="h-4 w-4" />
-                    <span>{order.paymentMethod}</span>
+                  <div className="flex min-w-0 items-center gap-2 text-sm text-gray-600">
+                    <CreditCard className="h-4 w-4 flex-shrink-0" />
+                    <span className="truncate">{order.paymentMethod}</span>
                   </div>
                 </div>
 
                 {/* Botões de ação */}
-                <div className="flex gap-2 pt-2">
+                <div className="flex flex-wrap gap-2 pt-2">
                   {order.status === 'pending' && (
                     <>
-                      <button className="rounded bg-green-500 px-3 py-1 text-sm text-white hover:bg-green-600">
+                      <button className="rounded bg-green-500 px-3 py-1.5 text-sm text-white hover:bg-green-600">
                         Aceitar Pedido
                       </button>
-                      <button className="rounded bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-600">
+                      <button className="rounded bg-red-500 px-3 py-1.5 text-sm text-white hover:bg-red-600">
                         Rejeitar
                       </button>
                     </>
                   )}
                   {order.status === 'preparing' && (
-                    <button className="rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600">
+                    <button className="rounded bg-blue-500 px-3 py-1.5 text-sm text-white hover:bg-blue-600">
                       Marcar como Pronto
                     </button>
                   )}
-                  <button className="rounded bg-gray-500 px-3 py-1 text-sm text-white hover:bg-gray-600">
+                  <button className="rounded bg-gray-500 px-3 py-1.5 text-sm text-white hover:bg-gray-600">
                     Ver Detalhes
                   </button>
                 </div>

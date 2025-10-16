@@ -25,6 +25,8 @@ import {
 import { useCartStore } from '@/lib/stores/cart-store'
 import { useAuthStore } from '@/lib/stores/auth-store'
 import { toast } from 'sonner'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { productsApi } from '@/lib/api'
 
 import type { Product } from '@/lib/data/establishments'
 
@@ -50,6 +52,7 @@ type ProductCardProps = {
   product: Product
   className?: string
   onEdit?: (product: Product) => void
+  onDelete?: (productId: string) => void
   showAdminControls?: boolean
 }
 
@@ -57,6 +60,7 @@ export function ProductCard({
   product,
   className,
   onEdit,
+  onDelete,
   showAdminControls = false,
 }: ProductCardProps) {
   const isAvailable = product.isAvailable
@@ -69,10 +73,28 @@ export function ProductCard({
     state.isEstablishmentAdmin(),
   )
   const isAdmin = showAdminControls && (isMaster || isEstablishmentAdmin)
+  const queryClient = useQueryClient()
 
   const inCartQty =
     items.find((it) => it.product.id === product.id)?.quantity ?? 0
   const inCart = inCartQty > 0
+
+  const { mutateAsync: deleteProduct, isPending: isDeleting } = useMutation({
+    mutationFn: productsApi.delete,
+    onSuccess: () => {
+      toast.success(`${product.name} foi excluído com sucesso!`)
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+      if (onDelete) {
+        onDelete(product.id)
+      }
+    },
+    onError: (error: unknown) => {
+      const message =
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message || 'Erro ao excluir produto'
+      toast.error(message)
+    },
+  })
 
   const handleEdit = () => {
     if (onEdit) {
@@ -82,8 +104,8 @@ export function ProductCard({
     }
   }
 
-  const handleDelete = () => {
-    toast.success(`${product.name} foi excluído com sucesso!`)
+  const handleDelete = async () => {
+    await deleteProduct(product.id)
   }
 
   return (
@@ -128,6 +150,7 @@ export function ProductCard({
                   size="icon"
                   variant="destructive"
                   className="h-8 w-8 bg-red-500/90 shadow-sm hover:bg-red-500"
+                  disabled={isDeleting}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -141,9 +164,14 @@ export function ProductCard({
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete}>
-                    Excluir
+                  <AlertDialogCancel disabled={isDeleting}>
+                    Cancelar
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? 'Excluindo...' : 'Excluir'}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

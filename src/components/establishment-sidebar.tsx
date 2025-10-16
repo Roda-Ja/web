@@ -53,7 +53,6 @@ export function EstablishmentSidebar({
 
   const establishmentData = {
     name: currentEstablishment?.name || 'Estabelecimento',
-    logo: currentEstablishment?.logo || '',
   }
 
   return (
@@ -66,13 +65,6 @@ export function EstablishmentSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton>
               <div className="flex items-center gap-2">
-                {currentEstablishment?.logo && (
-                  <img
-                    src={currentEstablishment.logo}
-                    alt="Logo"
-                    className="h-6 w-6 rounded-md object-cover"
-                  />
-                )}
                 <div className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500">
                   <Package className="w-3 text-white" />
                 </div>

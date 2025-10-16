@@ -2,6 +2,7 @@ export interface SignUpRequest {
   name: string
   email: string
   password: string
+  slug: string
 }
 
 export interface SignUpResponse {
@@ -47,12 +48,23 @@ export interface ProductResponse {
   price: number
   oldPrice?: number
   imageUrl?: string
+  categoryId?: string
   isActive: boolean
   createdAt: string
   updatedAt: string
 }
 
 export interface CreateProductRequest {
+  name: string
+  categoryId: string
+  description: string
+  price: number
+  oldPrice?: number
+  imageUrl: string
+  isActive: boolean
+}
+
+export interface UpdateProductRequest {
   name: string
   categoryId: string
   description: string
@@ -94,6 +106,10 @@ export interface ProductMetricsResponse {
 }
 
 export interface CreateCategoryRequest {
+  name: string
+}
+
+export interface UpdateCategoryRequest {
   name: string
 }
 

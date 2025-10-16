@@ -120,6 +120,7 @@ export default function EstablishmentCardapioPage({
     originalPrice: p.oldPrice,
     image: p.imageUrl || '/next.svg',
     category: 'todos',
+    categoryId: p.categoryId,
     tag: undefined,
     rating: 0,
     isAvailable: p.isActive,
