@@ -183,7 +183,6 @@ export default function EstablishmentCardapioPage({
 
   return (
     <div className="flex flex-col gap-4 p-4 sm:gap-6 sm:p-6">
-      {/* Header */}
       <div className="mb-2 flex flex-col gap-4 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl">
@@ -212,7 +211,6 @@ export default function EstablishmentCardapioPage({
         </div>
       </div>
 
-      {/* Estatísticas */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
@@ -254,7 +252,6 @@ export default function EstablishmentCardapioPage({
         </Card>
       </div>
 
-      {/* Filtros em Sheet/Drawer */}
       <div className="mb-3 flex items-center justify-between">
         <ProductFilters
           value={{
@@ -294,10 +291,8 @@ export default function EstablishmentCardapioPage({
         </div>
       </div>
 
-      {/* Cardápio (sem filtro por abas) */}
       <div className="w-full">{renderGrid('todos')}</div>
 
-      {/* Paginação */}
       <div className="text-muted-foreground mt-2 flex items-center justify-between text-xs">
         <div>
           Página {meta?.currentPage ?? page} de {meta?.totalPages ?? 1} • Itens
@@ -323,7 +318,6 @@ export default function EstablishmentCardapioPage({
         </div>
       </div>
 
-      {/* Modal de Edição */}
       <AddProductDialog
         editingProduct={editingProduct}
         onClose={() => setEditingProduct(null)}

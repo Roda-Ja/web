@@ -18,6 +18,8 @@ import {
 import { CategorySelect } from '@/components/menu/category-select'
 
 export type ProductFilterState = {
+  page?: number
+  limit?: number
   search?: string
   sort?: 'name' | 'price' | 'createdAt' | 'updatedAt'
   sortOrder?: 'asc' | 'desc'
@@ -37,7 +39,6 @@ type ProductFiltersProps = {
 }
 
 export function ProductFilters({ value, onChange }: ProductFiltersProps) {
-  // Filtros que têm valores (para mostrar checkmark no dropdown)
   const filtersWithValues = useMemo(() => {
     const filters: string[] = []
     if (value.search !== undefined && value.search !== '')
@@ -69,10 +70,8 @@ export function ProductFilters({ value, onChange }: ProductFiltersProps) {
     return filters
   }, [value])
 
-  // Filtros ativos (podem ou não ter valores ainda)
   const [activeFilters, setActiveFilters] = React.useState<string[]>([])
 
-  // Sincronizar: adicionar filtros com valores se ainda não estiverem na lista
   React.useEffect(() => {
     if (filtersWithValues.length > 0) {
       setActiveFilters((prev) => {
@@ -89,9 +88,7 @@ export function ProductFilters({ value, onChange }: ProductFiltersProps) {
   }
 
   const removeFilter = (type: string) => {
-    // Remover da lista de ativos
     setActiveFilters((prev) => prev.filter((f) => f !== type))
-    // Remover os valores do filtro
     if (type === 'search') onChange({ ...value, search: undefined })
     if (type === 'order')
       onChange({ ...value, sort: undefined, sortOrder: undefined })

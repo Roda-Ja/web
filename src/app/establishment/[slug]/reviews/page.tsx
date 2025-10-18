@@ -44,7 +44,6 @@ export default function EstablishmentReviewsPage({
     )
   }
 
-  // Calcular estatísticas das avaliações
   const totalReviews = establishment.products.reduce(
     (sum, product) => sum + Math.floor(product.rating * 10),
     0,

@@ -7,7 +7,6 @@ import {
   MapPin,
   ScrollText,
   ShoppingBasket,
-  // ShoppingCart,
   Users,
 } from 'lucide-react'
 import * as React from 'react'
@@ -28,7 +27,6 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar'
 
-// Função para obter URL do estabelecimento do usuário
 const getEstablishmentUrl = (page: string = 'cardapio') => {
   const establishments = getAllEstablishments()
   const user = useAuthStore.getState().user
@@ -40,7 +38,6 @@ const getEstablishmentUrl = (page: string = 'cardapio') => {
     : '/cardapio'
 }
 
-// Dados de navegação baseados no tipo de usuário
 const getNavigationData = (isMaster: boolean) => ({
   navMain: [
     ...(isMaster

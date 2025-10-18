@@ -11,14 +11,12 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 60 * 1000, // 1 minuto
+            staleTime: 60 * 1000,
             retry: (failureCount, error: any) => {
-              // Não tentar novamente em caso de erro 401 ou 403
               if (
                 error?.response?.status === 401 ||
                 error?.response?.status === 403
               ) {
-                // Fazer logout quando 401/403 em consultas
                 useAuthStore.getState().logout()
                 return false
               }

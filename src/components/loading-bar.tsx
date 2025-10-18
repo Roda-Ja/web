@@ -10,11 +10,9 @@ export function LoadingBar() {
   const [progress, setProgress] = useState(0)
 
   useEffect(() => {
-    // Reset loading state when route changes
     setIsLoading(true)
     setProgress(0)
 
-    // Simulate loading progress
     const interval = globalThis.setInterval(() => {
       setProgress((prev) => {
         if (prev >= 90) {
@@ -25,7 +23,6 @@ export function LoadingBar() {
       })
     }, 50)
 
-    // Complete loading after a short delay
     const timeout = globalThis.setTimeout(() => {
       setProgress(90)
       globalThis.setTimeout(() => {

@@ -13,7 +13,6 @@ import {
 import { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
 
-// Tipo para os dados dos pedidos
 export type Order = {
   id: string
   code: string
@@ -23,7 +22,6 @@ export type Order = {
   status: 'pending' | 'processing' | 'completed' | 'cancelled'
 }
 
-// Função para formatar o status
 const getStatusBadge = (status: Order['status']) => {
   const statusConfig = {
     pending: { label: 'Pendente', variant: 'secondary' as const },
@@ -36,7 +34,6 @@ const getStatusBadge = (status: Order['status']) => {
   return <Badge variant={config.variant}>{config.label}</Badge>
 }
 
-// Função para formatar o preço
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -44,7 +41,6 @@ const formatPrice = (price: number) => {
   }).format(price)
 }
 
-// Função para formatar a data
 const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString('pt-BR', {
     day: '2-digit',

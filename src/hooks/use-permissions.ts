@@ -12,19 +12,16 @@ export function usePermissions() {
   const user = useAuthStore((state) => state.user)
 
   return {
-    // Permissões básicas
     isAuthenticated,
     isMaster,
     isEstablishmentAdmin,
 
-    // Permissões específicas
     canManageAllEstablishments: isMaster,
     canManageSpecificEstablishment: isEstablishmentAdmin,
     canAccessAdminPanel: isMaster,
     canManageProducts: isMaster || isEstablishmentAdmin,
-    canViewProducts: isAuthenticated, // Qualquer usuário autenticado pode ver produtos
+    canViewProducts: isAuthenticated,
 
-    // Utilitários
     userRole: user?.role,
     userId: user?.id,
     userEstablishmentId: user?.establishmentId,

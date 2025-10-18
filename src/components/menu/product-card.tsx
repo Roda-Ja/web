@@ -126,7 +126,7 @@ export function ProductCard({
           </Badge>
         )}
 
-        {product.rating && (
+        {product.rating > 0 && (
           <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-xs font-medium shadow-sm dark:bg-black/60">
             <Star className="size-3 fill-yellow-400 text-yellow-400" />
             {product.rating.toFixed(1)}

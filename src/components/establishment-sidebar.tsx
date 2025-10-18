@@ -32,7 +32,6 @@ export function EstablishmentSidebar({
     (est) => est.slug === establishmentSlug,
   )
 
-  // Navegação específica para admin de estabelecimento
   const establishmentNav = [
     {
       title: 'Cardápio',

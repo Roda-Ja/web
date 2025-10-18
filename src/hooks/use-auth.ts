@@ -44,11 +44,9 @@ export function useSignIn() {
       let derivedEstablishmentId = data.user.establishmentId
       let finalRole: 'master' | 'establishment_admin' | 'user' = 'user'
 
-      // Se tem role explícito, usar ele
       if (data.user.role) {
         finalRole = data.user.role
       } else if (data.user.entity === 'establishment') {
-        // Se é establishment, tentar encontrar o estabelecimento
         const establishments = getAllEstablishments()
         const possibleSlug = slugify(data.user.name || '')
         const match = establishments.find((e) => e.slug === possibleSlug)
@@ -57,7 +55,6 @@ export function useSignIn() {
           derivedEstablishmentId = match.id
           finalRole = 'establishment_admin'
         } else if (data.user.establishmentId) {
-          // Se tem establishmentId mas não encontrou na lista local, ainda considera admin
           const establishmentExists = establishments.find(
             (e) => e.id === data.user.establishmentId,
           )
@@ -65,11 +62,9 @@ export function useSignIn() {
             derivedEstablishmentId = data.user.establishmentId
             finalRole = 'establishment_admin'
           } else {
-            // Se não encontrou estabelecimento válido, tratar como usuário normal
             finalRole = 'user'
           }
         } else {
-          // Se é entity establishment mas não tem estabelecimento, tratar como user
           finalRole = 'user'
         }
       }

@@ -3,7 +3,6 @@
 import { DataTable } from '@/components/ui/data-table'
 import { columns, Order } from './columns'
 
-// Dados de exemplo para demonstração
 const sampleData: Order[] = [
   {
     id: '1',
@@ -127,7 +126,6 @@ const sampleData: Order[] = [
   },
 ]
 
-// Função simulada de API para buscar dados com paginação
 const fetchOrdersData = async (
   pageIndex: number,
   pageSize: number,
@@ -135,17 +133,12 @@ const fetchOrdersData = async (
   data: Order[]
   totalCount: number
 }> => {
-  // Simular delay de rede
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
-  // Calcular índices para paginação
   const startIndex = pageIndex * pageSize
   const endIndex = startIndex + pageSize
 
-  // Simular filtros ou busca (aqui você pode adicionar lógica de busca)
   const filteredData = sampleData
-
-  // Retornar dados paginados
   const paginatedData = filteredData.slice(startIndex, endIndex)
 
   return {

@@ -133,17 +133,12 @@ const fetchOrdersData = async (
   data: Order[]
   totalCount: number
 }> => {
-  // Simular delay de rede
   await new Promise((resolve) => globalThis.setTimeout(resolve, 1000))
 
-  // Calcular índices para paginação
   const startIndex = pageIndex * pageSize
   const endIndex = startIndex + pageSize
 
-  // Simular filtros ou busca (aqui você pode adicionar lógica de busca)
   const filteredData = sampleData
-
-  // Retornar dados paginados
   const paginatedData = filteredData.slice(startIndex, endIndex)
 
   return {

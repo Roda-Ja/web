@@ -32,15 +32,12 @@ export default function Cardapio() {
   const [establishmentNotFound, setEstablishmentNotFound] =
     useState<boolean>(false)
 
-  // Se for admin de estabelecimento, redirecionar para a página específica do estabelecimento
   useEffect(() => {
     if (isEstablishmentAdmin && user?.establishmentId) {
-      // Tenta encontrar pelo ID do estabelecimento
       let userEstablishment = establishments.find(
         (est) => est.id === user.establishmentId,
       )
 
-      // Fallback: tenta por slug derivado do nome do usuário (ex.: "Roda já" -> "roda-ja")
       if (!userEstablishment && user?.name) {
         const slug = user.name
           .toLowerCase()
@@ -56,13 +53,11 @@ export default function Cardapio() {
       if (userEstablishment) {
         router.replace(`/establishment/${userEstablishment.slug}/cardapio`)
       } else {
-        // Se não encontrou o estabelecimento, marca como não encontrado
         setEstablishmentNotFound(true)
       }
     }
   }, [isEstablishmentAdmin, user?.establishmentId, establishments, router])
 
-  // Verificar se o usuário está autenticado
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
 
   if (!isAuthenticated) {
@@ -76,7 +71,6 @@ export default function Cardapio() {
     )
   }
 
-  // Se for admin de estabelecimento, não renderiza nada desta página
   if (isEstablishmentAdmin) {
     if (establishmentNotFound) {
       return (

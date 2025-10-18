@@ -15,22 +15,14 @@ export interface BreadcrumbItem {
 }
 
 interface NavigationStore {
-  // Todos os caminhos disponíveis na aplicação
   routes: NavigationItem[]
-
-  // Caminho atual
   currentPath: string
-
-  // Breadcrumb atual baseado no caminho
   currentBreadcrumb: BreadcrumbItem[]
-
-  // Ações
   setCurrentPath: (path: string) => void
   getBreadcrumbForPath: (_path: string) => BreadcrumbItem[]
   isActiveRoute: (_path: string) => boolean
 }
 
-// Configuração de todas as rotas da aplicação
 const allRoutes: NavigationItem[] = [
   {
     title: 'Painel Administrativo',

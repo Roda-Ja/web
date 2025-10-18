@@ -47,6 +47,21 @@ export const productsApi = {
     })
     return response.data
   },
+  async listPublic(
+    slug: string,
+    params: ListProductsParams = {},
+  ): Promise<PaginatedResponse<ProductResponse>> {
+    const cleaned: Record<string, string | number> = {}
+    Object.entries(params).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '') return
+      if (typeof value === 'number') cleaned[key] = value
+      else cleaned[key] = String(value)
+    })
+    const response = await apiClient.get(`/${slug}/product/list`, {
+      params: cleaned,
+    })
+    return response.data
+  },
   async create(payload: CreateProductRequest): Promise<ProductResponse> {
     const response = await apiClient.post('/establishment/product/new', payload)
     return response.data

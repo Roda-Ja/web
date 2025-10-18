@@ -44,7 +44,6 @@ export default function SignUpPage() {
   })
   const { handleSubmit, watch, setValue } = signUpForm
 
-  // Observa mudanças no campo nome e gera o slug automaticamente
   const nameValue = watch('name')
 
   useEffect(() => {
@@ -55,7 +54,6 @@ export default function SignUpPage() {
   }, [nameValue, setValue])
 
   async function handleSignUp(data: SignUpData) {
-    // Remover confirmPassword antes de enviar para a API
     const { confirmPassword, ...signUpData } = data
     signUpMutation.mutate(signUpData)
   }

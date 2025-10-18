@@ -51,11 +51,9 @@ export function CategorySelect({
   const categories = categoriesData?.pages.flatMap((page) => page.data) || []
   const selectedCategory = categories.find((cat) => cat.value === value)
 
-  // Fecha ao clicar fora
   useEffect(() => {
     if (!open) return
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleClickOutside = (event: any) => {
       if (
         containerRef.current &&

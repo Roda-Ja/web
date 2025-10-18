@@ -1,17 +1,18 @@
 'use client'
 
 import { notFound } from 'next/navigation'
-import { use } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { use, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { ProductCard } from '@/components/menu/product-card'
 import { PublicCart } from '@/components/menu/public-cart'
 import { Toaster } from '@/components/ui/sonner'
 import {
-  getEstablishmentBySlug,
-  type Establishment,
-  type Product,
-} from '@/lib/data/establishments'
-import { MapPin, Clock, Phone, Truck, Star } from 'lucide-react'
+  ProductFilters,
+  type ProductFilterState,
+} from '@/components/menu/product-filters'
+import { productsApi, type ListProductsParams } from '@/lib/api/products'
+import { getEstablishmentBySlug } from '@/lib/data/establishments'
+import { MapPin, Clock, Phone, Truck, Star, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
 interface EstablishmentPageProps {
@@ -24,32 +25,27 @@ export default function EstablishmentPage({ params }: EstablishmentPageProps) {
   const { slug } = use(params)
   const establishment = getEstablishmentBySlug(slug)
 
+  const [filters, setFilters] = useState<ProductFilterState>({
+    page: 1,
+    limit: 20,
+    isActive: 'true',
+  })
+
+  const {
+    data: productsData,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['public-products', slug, filters],
+    queryFn: () => productsApi.listPublic(slug, filters as ListProductsParams),
+    enabled: !!slug,
+  })
+
   if (!establishment) {
     notFound()
   }
 
-  const categories = [
-    { label: 'Todos', value: 'todos' },
-    ...establishment.categories.map((cat) => ({ label: cat, value: cat })),
-  ]
-
-  const renderGrid = (category: string) => {
-    const products =
-      category === 'todos'
-        ? establishment.products
-        : establishment.products.filter((p) => p.category === category)
-
-    return (
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {products.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-          />
-        ))}
-      </div>
-    )
-  }
+  const products = productsData?.data || []
 
   const averageRating =
     establishment.products.length > 0
@@ -61,7 +57,6 @@ export default function EstablishmentPage({ params }: EstablishmentPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="border-b bg-white shadow-sm">
         <div className="container mx-auto px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
@@ -106,7 +101,6 @@ export default function EstablishmentPage({ params }: EstablishmentPageProps) {
         </div>
       </header>
 
-      {/* Hero Section */}
       <section className="bg-gradient-to-r from-orange-500 to-red-500 py-8 text-white sm:py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl">
@@ -163,7 +157,6 @@ export default function EstablishmentPage({ params }: EstablishmentPageProps) {
         </div>
       </section>
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-6 sm:py-8">
         <div className="mb-6 sm:mb-8">
           <h3 className="mb-2 text-2xl font-bold text-gray-900 sm:text-3xl">
@@ -174,37 +167,88 @@ export default function EstablishmentPage({ params }: EstablishmentPageProps) {
           </p>
         </div>
 
-        <Tabs
-          defaultValue="todos"
-          className="w-full"
-        >
-          <div className="mb-4 overflow-x-auto sm:mb-6">
-            <TabsList className="inline-flex h-7 w-auto sm:h-8">
-              {categories.map((category) => (
-                <TabsTrigger
-                  key={category.value}
-                  value={category.value}
-                  className="px-2 text-xs whitespace-nowrap sm:px-3"
-                >
-                  {category.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
+        <div className="mb-6">
+          <ProductFilters
+            value={filters}
+            onChange={setFilters}
+          />
+        </div>
 
-          {categories.map((category) => (
-            <TabsContent
-              key={category.value}
-              value={category.value}
-              className="mt-4 sm:mt-6"
-            >
-              {renderGrid(category.value)}
-            </TabsContent>
-          ))}
-        </Tabs>
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+          </div>
+        )}
+
+        {error && !isLoading && (
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center">
+            <p className="text-red-800">
+              Erro ao carregar produtos. Por favor, tente novamente.
+            </p>
+          </div>
+        )}
+
+        {!isLoading && !error && (
+          <>
+            {products.length > 0 ? (
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {products.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={{
+                      id: product.id,
+                      name: product.name,
+                      description: product.description,
+                      price: product.price,
+                      originalPrice: product.oldPrice,
+                      image: product.imageUrl || '/placeholder-product.jpg',
+                      category: product.categoryId || '',
+                      categoryId: product.categoryId,
+                      rating: 4.5,
+                      isAvailable: product.isActive,
+                      establishmentId: establishment.id,
+                    }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center">
+                <p className="text-gray-600">
+                  Nenhum produto encontrado com os filtros selecionados.
+                </p>
+              </div>
+            )}
+
+            {productsData && productsData.meta.totalPages > 1 && (
+              <div className="mt-8 flex items-center justify-center gap-2">
+                <button
+                  onClick={() =>
+                    setFilters({ ...filters, page: (filters.page || 1) - 1 })
+                  }
+                  disabled={filters.page === 1}
+                  className="rounded-md border bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Anterior
+                </button>
+                <span className="text-sm text-gray-600">
+                  Página {productsData.meta.currentPage} de{' '}
+                  {productsData.meta.totalPages}
+                </span>
+                <button
+                  onClick={() =>
+                    setFilters({ ...filters, page: (filters.page || 1) + 1 })
+                  }
+                  disabled={filters.page === productsData.meta.totalPages}
+                  className="rounded-md border bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Próxima
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </main>
 
-      {/* Footer */}
       <footer className="bg-gray-900 py-8 text-white sm:py-12">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-3">
@@ -272,10 +316,7 @@ export default function EstablishmentPage({ params }: EstablishmentPageProps) {
         </div>
       </footer>
 
-      {/* Carrinho público */}
       <PublicCart />
-
-      {/* Toast notifications */}
       <Toaster />
     </div>
   )

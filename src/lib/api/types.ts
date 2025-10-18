@@ -119,3 +119,18 @@ export interface CategoryResponse {
   createdAt: string
   updatedAt?: string
 }
+
+export interface OrderResponse {
+  id: string
+  status: 'PENDING' | 'PAID' | 'CANCELLED'
+  totalPrice: number
+  paymentMethod: 'CREDIT_CARD' | 'DEBIT_CARD' | 'PIX' | 'MONEY'
+  paymentStatus: 'PENDING' | 'PAID' | 'CANCELLED'
+  deliveryStatus: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
+  deliveredAt: string | null
+  establishmentId: string
+  addressId: string
+  customerId: string
+  createdAt: string
+  updatedAt: string
+}

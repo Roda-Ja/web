@@ -69,7 +69,6 @@ export default function Page() {
       role: 'establishment_admin',
       establishmentId: establishmentId,
     })
-    // Redirecionar para o cardápio do estabelecimento
     window.location.href = `/establishment/${establishment?.slug}/cardapio`
   }
 

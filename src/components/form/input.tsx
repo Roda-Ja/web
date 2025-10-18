@@ -14,7 +14,6 @@ export function Input({ name, ...props }: InputProps) {
     control,
   })
 
-  // Garantir que o value seja sempre uma string para evitar o erro de controlled/uncontrolled
   const controlledField = {
     ...field,
     value: field.value ?? '',
