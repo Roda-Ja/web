@@ -11,12 +11,22 @@ import {
 import { useCartStore } from '@/lib/stores/cart-store'
 import { formatBRL } from '@/components/menu/product-card'
 import { Minus, Plus, ShoppingCart, Trash2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
-export function PublicCart() {
+interface PublicCartProps {
+  slug: string
+}
+
+export function PublicCart({ slug }: PublicCartProps) {
   const { items, increase, decrease, remove, clear, totalItems, totalPrice } =
     useCartStore()
+  const router = useRouter()
 
   const hasItems = items.length > 0
+
+  const handleCheckout = () => {
+    router.push(`/${slug}/checkout`)
+  }
 
   return (
     <div className="fixed right-4 bottom-4 z-50">
@@ -121,6 +131,7 @@ export function PublicCart() {
                     <Button
                       className="w-full"
                       size="lg"
+                      onClick={handleCheckout}
                     >
                       Finalizar Pedido
                     </Button>
@@ -141,4 +152,3 @@ export function PublicCart() {
     </div>
   )
 }
-

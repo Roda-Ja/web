@@ -134,3 +134,115 @@ export interface OrderResponse {
   createdAt: string
   updatedAt: string
 }
+
+export interface CreateOrderRequest {
+  products: Array<{
+    id: string
+    quantity: number
+  }>
+  totalPrice: number
+  paymentMethod: 'CREDIT_CARD' | 'DEBIT_CARD' | 'PIX' | 'MONEY'
+  address: {
+    id?: string
+    street: string
+    number: string
+    complement?: string
+    neighborhood: string
+    city: string
+    state: string
+    zipCode: string
+  }
+  customer: {
+    id?: string
+    name: string
+    email: string
+    phone: string
+  }
+}
+
+export interface PublicEstablishmentResponse {
+  id: string
+  name: string
+  slug: string
+  imageUrl?: string
+  addresses: Array<{
+    id: string
+    street: string
+    number: string
+    complement?: string
+    neighborhood: string
+    city: string
+    state: string
+    zipCode: string
+    isPrimary: boolean
+    createdAt: string
+    updatedAt: string
+  }>
+  createdAt: string
+}
+
+export interface ListPublicEstablishmentsParams {
+  page?: number
+  limit?: number
+  search?: string
+  sort?: 'name' | 'createdAt' | 'updatedAt'
+  sortOrder?: 'asc' | 'desc'
+  slug?: string
+  verified?: 'true' | 'false'
+  createdAfter?: string
+  createdBefore?: string
+  updatedAfter?: string
+  updatedBefore?: string
+}
+
+export interface EstablishmentMeResponse {
+  id: string
+  name: string
+  email: string
+  slug: string
+  imageUrl?: string
+  addresses: Array<{
+    id: string
+    street: string
+    number: string
+    complement?: string
+    neighborhood: string
+    city: string
+    state: string
+    zipCode: string
+    isPrimary: boolean
+    createdAt: string
+    updatedAt: string
+  }>
+  createdAt: string
+  updatedAt: string
+  entity: 'ESTABLISHMENT'
+}
+
+export interface UpdateEstablishmentRequest {
+  name: string
+  slug: string
+  imageUrl?: string
+}
+
+export interface EstablishmentAddressResponse {
+  id: string
+  street: string
+  number: string
+  complement?: string
+  neighborhood: string
+  city: string
+  state: string
+  zipCode: string
+  isPrimary: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface UpdatePaymentStatusRequest {
+  paymentStatus: 'PENDING' | 'PAID' | 'CANCELLED'
+}
+
+export interface UpdateDeliveryStatusRequest {
+  deliveryStatus: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
+}

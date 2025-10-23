@@ -40,19 +40,20 @@ interface AuthRouteProps {
   redirectTo?: string
 }
 
-export function AuthRoute({
-  children,
-  redirectTo = '/dashboard',
-}: AuthRouteProps) {
+export function AuthRoute({ children, redirectTo }: AuthRouteProps) {
   const router = useRouter()
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const isHydrated = useAuthStore((state) => state.isHydrated)
+  const user = useAuthStore((state) => state.user)
 
   useEffect(() => {
-    if (isHydrated && isAuthenticated) {
-      router.push(redirectTo)
+    if (isHydrated && isAuthenticated && redirectTo) {
+      // Só redireciona se não tiver establishmentId (para evitar conflito com redirecionamento do login)
+      if (!user?.establishmentId) {
+        router.push(redirectTo)
+      }
     }
-  }, [isHydrated, isAuthenticated, router, redirectTo])
+  }, [isHydrated, isAuthenticated, router, redirectTo, user?.establishmentId])
 
   if (!isHydrated) {
     return <LoadingScreen message="Carregando..." />

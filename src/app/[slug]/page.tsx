@@ -11,6 +11,7 @@ import {
   type ProductFilterState,
 } from '@/components/menu/product-filters'
 import { productsApi, type ListProductsParams } from '@/lib/api/products'
+import { establishmentApi } from '@/lib/api'
 import { getEstablishmentBySlug } from '@/lib/data/establishments'
 import { MapPin, Clock, Phone, Truck, Star, Loader2 } from 'lucide-react'
 import Link from 'next/link'
@@ -29,6 +30,16 @@ export default function EstablishmentPage({ params }: EstablishmentPageProps) {
     page: 1,
     limit: 20,
     isActive: 'true',
+  })
+
+  const {
+    data: establishmentData,
+    isLoading: establishmentLoading,
+    error: establishmentError,
+  } = useQuery({
+    queryKey: ['establishment-me', slug],
+    queryFn: establishmentApi.getMe,
+    enabled: !!establishment,
   })
 
   const {
@@ -105,9 +116,18 @@ export default function EstablishmentPage({ params }: EstablishmentPageProps) {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl">
             <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
-              <h2 className="text-2xl font-bold sm:text-3xl lg:text-4xl">
-                {establishment.name}
-              </h2>
+              <div className="flex items-center gap-3">
+                {establishmentData?.imageUrl && (
+                  <img
+                    src={establishmentData.imageUrl}
+                    alt={establishmentData.name}
+                    className="h-12 w-12 rounded-lg object-cover sm:h-16 sm:w-16"
+                  />
+                )}
+                <h2 className="text-2xl font-bold sm:text-3xl lg:text-4xl">
+                  {establishmentData?.name || establishment.name}
+                </h2>
+              </div>
               <div className="flex w-fit items-center gap-1 rounded-full bg-white/20 px-2 py-1">
                 <Star className="h-3 w-3 fill-current sm:h-4 sm:w-4" />
                 <span className="text-xs font-medium sm:text-sm">
@@ -124,9 +144,27 @@ export default function EstablishmentPage({ params }: EstablishmentPageProps) {
                 <MapPin className="h-4 w-4 flex-shrink-0 sm:h-5 sm:w-5" />
                 <div className="min-w-0">
                   <p className="text-xs text-orange-200 sm:text-sm">Endereço</p>
-                  <p className="truncate text-sm font-medium sm:text-base">
-                    {establishment.address}
-                  </p>
+                  {establishmentLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      <span className="text-sm">Carregando...</span>
+                    </div>
+                  ) : establishmentData?.addresses &&
+                    establishmentData.addresses.length > 0 ? (
+                    <p className="truncate text-sm font-medium sm:text-base">
+                      {(() => {
+                        const primaryAddress =
+                          establishmentData.addresses.find(
+                            (addr) => addr.isPrimary,
+                          ) || establishmentData.addresses[0]
+                        return `${primaryAddress.street}, ${primaryAddress.number} - ${primaryAddress.neighborhood}`
+                      })()}
+                    </p>
+                  ) : (
+                    <p className="truncate text-sm font-medium sm:text-base">
+                      {establishment.address}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -316,7 +354,7 @@ export default function EstablishmentPage({ params }: EstablishmentPageProps) {
         </div>
       </footer>
 
-      <PublicCart />
+      <PublicCart slug={slug} />
       <Toaster />
     </div>
   )

@@ -28,6 +28,8 @@ import {
 import { getEstablishmentBySlug } from '@/lib/data/establishments'
 import { useAuthStore } from '@/lib/stores/auth-store'
 import { useQuery } from '@tanstack/react-query'
+import { OrderDetailsModal } from '@/components/order-details-modal'
+import { StatusUpdateButtons } from '@/components/status-update-buttons'
 import { ordersApi, type ListOrdersParams } from '@/lib/api'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -51,7 +53,7 @@ const getStatusColor = (status: string) => {
 const getStatusText = (status: string) => {
   switch (status) {
     case 'PENDING':
-      return 'Pendente'
+      return 'Pagamento Pendente'
     case 'PAID':
       return 'Pago'
     case 'CANCELLED':
@@ -79,7 +81,7 @@ const getDeliveryStatusColor = (status: string) => {
 const getDeliveryStatusText = (status: string) => {
   switch (status) {
     case 'PENDING':
-      return 'Pendente'
+      return 'Entrega Pendente'
     case 'IN_PROGRESS':
       return 'Em Andamento'
     case 'COMPLETED':
@@ -121,6 +123,19 @@ export default function EstablishmentOrdersPage({
   const [deliveryStatusFilter, setDeliveryStatusFilter] =
     useState<string>('all')
   const [paymentMethodFilter, setPaymentMethodFilter] = useState<string>('all')
+
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const handleOpenModal = (orderId: string) => {
+    setSelectedOrderId(orderId)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setSelectedOrderId(null)
+  }
 
   const queryParams: ListOrdersParams = {
     page,
@@ -211,7 +226,9 @@ export default function EstablishmentOrdersPage({
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Pagamento Pendente
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -283,7 +300,7 @@ export default function EstablishmentOrdersPage({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="PENDING">Pendente</SelectItem>
+                  <SelectItem value="PENDING">Pagamento Pendente</SelectItem>
                   <SelectItem value="PAID">Pago</SelectItem>
                   <SelectItem value="CANCELLED">Cancelado</SelectItem>
                 </SelectContent>
@@ -301,7 +318,7 @@ export default function EstablishmentOrdersPage({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="PENDING">Pendente</SelectItem>
+                  <SelectItem value="PENDING">Entrega Pendente</SelectItem>
                   <SelectItem value="IN_PROGRESS">Em Andamento</SelectItem>
                   <SelectItem value="COMPLETED">Entregue</SelectItem>
                   <SelectItem value="CANCELLED">Cancelado</SelectItem>
@@ -395,8 +412,8 @@ export default function EstablishmentOrdersPage({
                         R$ {order.totalPrice.toFixed(2)}
                       </div>
                       <div className="flex gap-2">
-                        <Badge className={getStatusColor(order.status)}>
-                          {getStatusText(order.status)}
+                        <Badge className={getStatusColor(order.paymentStatus)}>
+                          {getStatusText(order.paymentStatus)}
                         </Badge>
                         <Badge
                           className={getDeliveryStatusColor(
@@ -442,9 +459,19 @@ export default function EstablishmentOrdersPage({
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => handleOpenModal(order.id)}
                       >
                         Ver Detalhes
                       </Button>
+
+                      {canManage && (
+                        <StatusUpdateButtons
+                          orderId={order.id}
+                          currentPaymentStatus={order.paymentStatus}
+                          currentDeliveryStatus={order.deliveryStatus}
+                          establishmentId={establishment.id}
+                        />
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -484,6 +511,12 @@ export default function EstablishmentOrdersPage({
           </>
         )}
       </div>
+
+      <OrderDetailsModal
+        orderId={selectedOrderId}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   )
 }

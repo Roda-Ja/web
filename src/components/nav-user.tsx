@@ -1,12 +1,6 @@
 'use client'
 
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-} from 'lucide-react'
+import { BadgeCheck, Bell, ChevronsUpDown, LogOut } from 'lucide-react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -25,11 +19,13 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 import { useAuthStore } from '@/lib/stores/auth-store'
+import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 
 export function NavUser() {
   const { isMobile } = useSidebar()
   const { user, logout } = useAuthStore()
+  const router = useRouter()
   const isMaster = useAuthStore((state) => state.isMaster())
   const isEstablishmentAdmin = useAuthStore((state) =>
     state.isEstablishmentAdmin(),
@@ -134,13 +130,9 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push('/account')}>
                 <BadgeCheck />
                 Conta
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Carteira
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell />

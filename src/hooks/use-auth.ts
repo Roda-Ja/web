@@ -50,7 +50,7 @@ export function useSignIn() {
         const establishments = getAllEstablishments()
         const possibleSlug = slugify(data.user.name || '')
         const match = establishments.find((e) => e.slug === possibleSlug)
-        
+
         if (match) {
           derivedEstablishmentId = match.id
           finalRole = 'establishment_admin'
@@ -82,7 +82,17 @@ export function useSignIn() {
 
       toast.success('Login realizado com sucesso!')
 
-      if (user.role === 'master') {
+      if (user.establishmentId) {
+        const establishments = getAllEstablishments()
+        const establishment = establishments.find(
+          (e) => e.id === user.establishmentId,
+        )
+        if (establishment) {
+          router.push(`/establishment/${establishment.slug}/cardapio`)
+        } else {
+          router.push('/cardapio')
+        }
+      } else if (user.role === 'master') {
         router.push('/dashboard')
       } else {
         router.push('/cardapio')
