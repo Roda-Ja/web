@@ -6,6 +6,7 @@ import type {
   OrderDetailsResponse,
   UpdatePaymentStatusRequest,
   UpdateDeliveryStatusRequest,
+  UpdateApprovalStatusRequest,
 } from './types'
 
 export interface ListOrdersParams {
@@ -64,6 +65,17 @@ export const ordersApi = {
   ): Promise<OrderDetailsResponse> {
     const response = await apiClient.patch(
       `/establishment/order/${id}/delivery-status`,
+      data,
+    )
+    return response.data
+  },
+
+  async updateApprovalStatus(
+    id: string,
+    data: UpdateApprovalStatusRequest,
+  ): Promise<OrderDetailsResponse> {
+    const response = await apiClient.patch(
+      `/establishment/orders/${id}/approval`,
       data,
     )
     return response.data

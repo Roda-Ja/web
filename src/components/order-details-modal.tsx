@@ -21,7 +21,9 @@ import {
   Calendar,
   DollarSign,
   Loader2,
+  MessageCircle,
 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 interface OrderDetailsModalProps {
   orderId: string | null
@@ -56,6 +58,10 @@ export function OrderDetailsModal({
         return 'Em Andamento'
       case 'COMPLETED':
         return 'Completo'
+      case 'APPROVED':
+        return 'Aprovado'
+      case 'REJECTED':
+        return 'Rejeitado'
       default:
         return status
     }
@@ -67,8 +73,10 @@ export function OrderDetailsModal({
         return 'secondary'
       case 'PAID':
       case 'COMPLETED':
+      case 'APPROVED':
         return 'default'
       case 'CANCELLED':
+      case 'REJECTED':
         return 'destructive'
       case 'IN_PROGRESS':
         return 'outline'
@@ -92,12 +100,23 @@ export function OrderDetailsModal({
     }
   }
 
+  const formatDate = (date: string | null | undefined) => {
+    if (!date) return null
+    try {
+      const parsedDate = new Date(date)
+      if (isNaN(parsedDate.getTime())) return null
+      return parsedDate.toLocaleString('pt-BR')
+    } catch {
+      return null
+    }
+  }
+
   return (
     <Dialog
       open={isOpen}
       onOpenChange={onClose}
     >
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
@@ -169,7 +188,7 @@ export function OrderDetailsModal({
             {/* Status do Pagamento e Entrega */}
             <div className="space-y-4">
               <h4 className="font-semibold">Status</h4>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <CreditCard className="h-4 w-4" />
@@ -193,85 +212,189 @@ export function OrderDetailsModal({
                     {getStatusText(orderDetails.deliveryStatus)}
                   </Badge>
                 </div>
-              </div>
 
-              {orderDetails.deliveredAt && (
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-green-600" />
-                  <div>
-                    <p className="text-sm text-gray-600">Entregue em</p>
-                    <p className="font-medium">
-                      {new Date(orderDetails.deliveredAt).toLocaleString(
-                        'pt-BR',
+                {orderDetails.approvalStatus && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      <span className="text-sm font-medium">Aprovação</span>
+                    </div>
+                    <Badge
+                      variant={getStatusBadgeVariant(
+                        orderDetails.approvalStatus,
                       )}
+                    >
+                      {getStatusText(orderDetails.approvalStatus)}
+                    </Badge>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Grid de Cards */}
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              {/* Informações do Cliente */}
+              {orderDetails.customer && (
+                <div className="flex h-full flex-col space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="flex items-center gap-2 text-sm font-semibold">
+                      <User className="h-4 w-4" />
+                      Cliente
+                    </h4>
+                    {orderDetails.customer.phone && (
+                      <Button
+                        size="sm"
+                        className="h-8 gap-2 bg-green-500 hover:bg-green-600"
+                        onClick={() =>
+                          window.open(
+                            `https://wa.me/55${orderDetails.customer.phone.replace(/\D/g, '')}`,
+                            '_blank',
+                          )
+                        }
+                      >
+                        <MessageCircle className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline">WhatsApp</span>
+                      </Button>
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-2.5 rounded-lg border bg-gray-50 p-3.5">
+                    <div>
+                      <p className="text-xs font-medium text-gray-500">Nome</p>
+                      <p className="mt-0.5 text-sm font-medium text-gray-900">
+                        {orderDetails.customer.name}
+                      </p>
+                    </div>
+                    {orderDetails.customer.phone && (
+                      <div>
+                        <p className="text-xs font-medium text-gray-500">
+                          Telefone
+                        </p>
+                        <p className="mt-0.5 text-sm font-medium text-gray-900">
+                          {orderDetails.customer.phone}
+                        </p>
+                      </div>
+                    )}
+                    {orderDetails.customer.email && (
+                      <div>
+                        <p className="text-xs font-medium text-gray-500">
+                          E-mail
+                        </p>
+                        <p className="mt-0.5 text-sm font-medium text-gray-900">
+                          {orderDetails.customer.email}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Endereço de Entrega */}
+              {orderDetails.address && (
+                <div className="flex h-full flex-col space-y-3">
+                  <h4 className="flex items-center gap-2 text-sm font-semibold">
+                    <MapPin className="h-4 w-4" />
+                    Endereço de Entrega
+                  </h4>
+                  <div className="flex-1 space-y-1.5 rounded-lg border bg-gray-50 p-3.5">
+                    <p className="text-sm font-medium text-gray-900">
+                      {orderDetails.address.street},{' '}
+                      {orderDetails.address.number}
+                    </p>
+                    {orderDetails.address.complement && (
+                      <p className="text-xs text-gray-600">
+                        {orderDetails.address.complement}
+                      </p>
+                    )}
+                    <p className="text-xs text-gray-600">
+                      {orderDetails.address.neighborhood}
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      {orderDetails.address.city} - {orderDetails.address.state}
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      CEP: {orderDetails.address.zipCode}
                     </p>
                   </div>
                 </div>
               )}
-            </div>
 
-            <Separator />
-
-            {/* Informações de Identificação */}
-            <div className="space-y-4">
-              <h4 className="font-semibold">Identificação</h4>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="flex items-center gap-3">
-                  <Building2 className="h-4 w-4 text-gray-600" />
-                  <div>
-                    <p className="text-sm text-gray-600">Estabelecimento</p>
-                    <p className="text-sm font-medium">
-                      {orderDetails.establishmentId.slice(0, 8)}...
-                    </p>
+              {/* Informações do Estabelecimento */}
+              {orderDetails.establishment && (
+                <div className="flex h-full flex-col space-y-3">
+                  <h4 className="flex items-center gap-2 text-sm font-semibold">
+                    <Building2 className="h-4 w-4" />
+                    Estabelecimento
+                  </h4>
+                  <div className="flex-1 space-y-2.5 rounded-lg border bg-gray-50 p-3.5">
+                    <div>
+                      <p className="text-xs font-medium text-gray-500">Nome</p>
+                      <p className="mt-0.5 text-sm font-medium text-gray-900">
+                        {orderDetails.establishment.name}
+                      </p>
+                    </div>
+                    {orderDetails.establishment.slug && (
+                      <div>
+                        <p className="text-xs font-medium text-gray-500">
+                          Slug
+                        </p>
+                        <p className="mt-0.5 text-sm font-medium text-gray-900">
+                          {orderDetails.establishment.slug}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
+              )}
 
-                <div className="flex items-center gap-3">
-                  <MapPin className="h-4 w-4 text-gray-600" />
-                  <div>
-                    <p className="text-sm text-gray-600">Endereço</p>
-                    <p className="text-sm font-medium">
-                      {orderDetails.addressId.slice(0, 8)}...
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <User className="h-4 w-4 text-gray-600" />
-                  <div>
-                    <p className="text-sm text-gray-600">Cliente</p>
-                    <p className="text-sm font-medium">
-                      {orderDetails.customerId.slice(0, 8)}...
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Datas */}
-            <div className="space-y-4">
-              <h4 className="font-semibold">Datas</h4>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="flex items-center gap-3">
-                  <Calendar className="h-4 w-4 text-gray-600" />
-                  <div>
-                    <p className="text-sm text-gray-600">Criado em</p>
-                    <p className="font-medium">
-                      {new Date(orderDetails.createdAt).toLocaleString('pt-BR')}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <Clock className="h-4 w-4 text-gray-600" />
-                  <div>
-                    <p className="text-sm text-gray-600">Atualizado em</p>
-                    <p className="font-medium">
-                      {new Date(orderDetails.updatedAt).toLocaleString('pt-BR')}
-                    </p>
-                  </div>
+              {/* Datas */}
+              <div className="flex h-full flex-col space-y-3">
+                <h4 className="flex items-center gap-2 text-sm font-semibold">
+                  <Calendar className="h-4 w-4" />
+                  Datas
+                </h4>
+                <div className="flex-1 space-y-2.5 rounded-lg border bg-gray-50 p-3.5">
+                  {formatDate(
+                    orderDetails.createdAt || orderDetails.customer?.createdAt,
+                  ) && (
+                    <div>
+                      <p className="text-xs font-medium text-gray-500">
+                        Pedido criado em
+                      </p>
+                      <p className="mt-0.5 text-sm font-medium text-gray-900">
+                        {formatDate(
+                          orderDetails.createdAt ||
+                            orderDetails.customer?.createdAt,
+                        )}
+                      </p>
+                    </div>
+                  )}
+                  {formatDate(
+                    orderDetails.updatedAt || orderDetails.customer?.updatedAt,
+                  ) && (
+                    <div>
+                      <p className="text-xs font-medium text-gray-500">
+                        Atualizado em
+                      </p>
+                      <p className="mt-0.5 text-sm font-medium text-gray-900">
+                        {formatDate(
+                          orderDetails.updatedAt ||
+                            orderDetails.customer?.updatedAt,
+                        )}
+                      </p>
+                    </div>
+                  )}
+                  {formatDate(orderDetails.deliveredAt) && (
+                    <div>
+                      <p className="text-xs font-medium text-gray-500">
+                        Entregue em
+                      </p>
+                      <p className="mt-0.5 text-sm font-medium text-green-600">
+                        {formatDate(orderDetails.deliveredAt)}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

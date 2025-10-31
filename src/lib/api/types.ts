@@ -120,6 +120,69 @@ export interface CategoryResponse {
   updatedAt?: string
 }
 
+export interface OrderCustomerResponse {
+  id: string
+  name: string
+  phone: string
+  email: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface OrderAddressResponse {
+  id: string
+  street: string
+  number: string
+  complement?: string
+  neighborhood: string
+  city: string
+  state: string
+  zipCode: string
+  customerId?: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface BusinessHoursResponse {
+  id: string
+  establishmentId: string
+  dayOfWeek:
+    | 'MONDAY'
+    | 'TUESDAY'
+    | 'WEDNESDAY'
+    | 'THURSDAY'
+    | 'FRIDAY'
+    | 'SATURDAY'
+    | 'SUNDAY'
+  openAt: string
+  closeAt: string
+  isOpen: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface OrderEstablishmentResponse {
+  id: string
+  name: string
+  slug: string
+  imageUrl?: string
+  businessHours?: BusinessHoursResponse[]
+  addresses?: Array<{
+    id: string
+    street: string
+    number: string
+    complement?: string
+    neighborhood: string
+    city: string
+    state: string
+    zipCode: string
+    isPrimary: boolean
+    createdAt: string
+    updatedAt: string
+  }>
+  createdAt?: string
+}
+
 export interface OrderResponse {
   id: string
   status: 'PENDING' | 'PAID' | 'CANCELLED'
@@ -128,9 +191,13 @@ export interface OrderResponse {
   paymentStatus: 'PENDING' | 'PAID' | 'CANCELLED'
   deliveryStatus: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
   deliveredAt: string | null
+  approvalStatus?: 'PENDING' | 'APPROVED' | 'REJECTED'
   establishmentId: string
   addressId: string
   customerId: string
+  establishment?: OrderEstablishmentResponse
+  customer?: OrderCustomerResponse
+  address?: OrderAddressResponse
   createdAt: string
   updatedAt: string
 }
@@ -245,4 +312,27 @@ export interface UpdatePaymentStatusRequest {
 
 export interface UpdateDeliveryStatusRequest {
   deliveryStatus: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
+}
+
+export interface UpdateApprovalStatusRequest {
+  approvalStatus: 'PENDING' | 'APPROVED' | 'REJECTED'
+}
+
+export interface OrderDetailsResponse {
+  id: string
+  status: 'PENDING' | 'PAID' | 'CANCELLED'
+  totalPrice: number
+  paymentMethod: 'CREDIT_CARD' | 'DEBIT_CARD' | 'PIX' | 'MONEY'
+  paymentStatus: 'PENDING' | 'PAID' | 'CANCELLED'
+  deliveryStatus: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
+  deliveredAt: string | null
+  approvalStatus?: 'PENDING' | 'APPROVED' | 'REJECTED'
+  establishmentId?: string
+  addressId?: string
+  customerId?: string
+  establishment: OrderEstablishmentResponse
+  customer: OrderCustomerResponse
+  address: OrderAddressResponse
+  createdAt?: string
+  updatedAt?: string
 }
