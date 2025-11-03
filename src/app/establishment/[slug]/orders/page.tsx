@@ -2,6 +2,7 @@
 
 import { notFound } from 'next/navigation'
 import { use, useState } from 'react'
+import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -22,7 +23,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Plus } from 'lucide-react'
+import { Plus, Loader2 } from 'lucide-react'
 import { getEstablishmentBySlug } from '@/lib/data/establishments'
 import { useAuthStore } from '@/lib/stores/auth-store'
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
@@ -81,10 +82,21 @@ export default function EstablishmentOrdersPage({
   >([])
   const [currentProductId, setCurrentProductId] = useState<string>('')
   const [currentQuantity, setCurrentQuantity] = useState<string>('1')
-  const [whatsapp, setWhatsapp] = useState<string>('')
-  const [cep, setCep] = useState<string>('')
-  const [address, setAddress] = useState<string>('')
+
+  // Dados do cliente
+  const [customerName, setCustomerName] = useState<string>('')
+  const [customerEmail, setCustomerEmail] = useState<string>('')
+  const [customerPhone, setCustomerPhone] = useState<string>('')
+
+  // Dados do endereço
+  const [street, setStreet] = useState<string>('')
   const [addressNumber, setAddressNumber] = useState<string>('')
+  const [complement, setComplement] = useState<string>('')
+  const [neighborhood, setNeighborhood] = useState<string>('')
+  const [city, setCity] = useState<string>('')
+  const [state, setState] = useState<string>('')
+  const [zipCode, setZipCode] = useState<string>('')
+
   const [paymentMethod, setPaymentMethod] = useState<string>('')
 
   const handleCloseModal = () => {
@@ -144,17 +156,80 @@ export default function EstablishmentOrdersPage({
     )
   }
 
+  // Mutation para criar pedido manual
+  const createManualOrderMutation = useMutation({
+    mutationFn: ordersApi.create,
+    onSuccess: () => {
+      toast.success('Pedido criado com sucesso!')
+      setIsManualOrderDialogOpen(false)
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+      // Reset form
+      resetManualOrderForm()
+    },
+    onError: (error: Error) => {
+      toast.error(
+        'Erro ao criar pedido: ' + (error.message || 'Erro desconhecido'),
+      )
+    },
+  })
+
+  const resetManualOrderForm = () => {
+    setSelectedProducts([])
+    setCustomerName('')
+    setCustomerEmail('')
+    setCustomerPhone('')
+    setStreet('')
+    setAddressNumber('')
+    setComplement('')
+    setNeighborhood('')
+    setCity('')
+    setState('')
+    setZipCode('')
+    setPaymentMethod('')
+    setCurrentProductId('')
+    setCurrentQuantity('1')
+  }
+
   const handleSubmitManualOrder = () => {
+    // Validações
     if (selectedProducts.length === 0) {
       toast.error('Adicione pelo menos um produto')
       return
     }
-    if (!whatsapp) {
-      toast.error('Informe o número do WhatsApp')
+    if (!customerName) {
+      toast.error('Informe o nome do cliente')
       return
     }
-    if (!address) {
-      toast.error('Informe o endereço')
+    if (!customerEmail) {
+      toast.error('Informe o email do cliente')
+      return
+    }
+    if (!customerPhone) {
+      toast.error('Informe o telefone do cliente')
+      return
+    }
+    if (!street) {
+      toast.error('Informe a rua')
+      return
+    }
+    if (!addressNumber) {
+      toast.error('Informe o número do endereço')
+      return
+    }
+    if (!neighborhood) {
+      toast.error('Informe o bairro')
+      return
+    }
+    if (!city) {
+      toast.error('Informe a cidade')
+      return
+    }
+    if (!state) {
+      toast.error('Informe o estado')
+      return
+    }
+    if (!zipCode) {
+      toast.error('Informe o CEP')
       return
     }
     if (!paymentMethod) {
@@ -162,15 +237,41 @@ export default function EstablishmentOrdersPage({
       return
     }
 
-    toast.success('Pedido criado com sucesso!')
-    setIsManualOrderDialogOpen(false)
-    // Reset form
-    setSelectedProducts([])
-    setWhatsapp('')
-    setCep('')
-    setAddress('')
-    setAddressNumber('')
-    setPaymentMethod('')
+    // Calcular preço total
+    const totalPrice = selectedProducts.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    )
+
+    // Montar payload
+    const payload = {
+      products: selectedProducts.map((item) => ({
+        id: item.productId,
+        quantity: item.quantity,
+      })),
+      totalPrice,
+      paymentMethod: paymentMethod as
+        | 'CREDIT_CARD'
+        | 'DEBIT_CARD'
+        | 'PIX'
+        | 'MONEY',
+      address: {
+        street,
+        number: addressNumber,
+        complement: complement || undefined,
+        neighborhood,
+        city,
+        state,
+        zipCode,
+      },
+      customer: {
+        name: customerName,
+        email: customerEmail,
+        phone: customerPhone,
+      },
+    }
+
+    createManualOrderMutation.mutate(payload)
   }
 
   // Query params para buscar pedidos
@@ -309,18 +410,19 @@ export default function EstablishmentOrdersPage({
             Gerencie os pedidos do seu estabelecimento
           </p>
         </div>
+        <Link href={`/establishment/${slug}/orders/manual/new`}>
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">Lançamento Manual</span>
+            <span className="sm:hidden">Manual</span>
+          </Button>
+        </Link>
         <Dialog
           open={isManualOrderDialogOpen}
           onOpenChange={setIsManualOrderDialogOpen}
+          className="hidden"
         >
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              <span className="hidden sm:inline">Lançamentos manuais</span>
-              <span className="sm:hidden">Manual</span>
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+          <DialogContent className="hidden max-h-[90vh] max-w-3xl overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Lançamento Manual de Pedido</DialogTitle>
               <DialogDescription>
@@ -408,9 +510,20 @@ export default function EstablishmentOrdersPage({
               <div className="space-y-3">
                 <Label>Informações do Cliente</Label>
                 <Input
-                  placeholder="Número do WhatsApp (ex: 11987654321)"
-                  value={whatsapp}
-                  onChange={(e) => setWhatsapp(e.target.value)}
+                  placeholder="Nome completo"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                />
+                <Input
+                  placeholder="Email"
+                  type="email"
+                  value={customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
+                />
+                <Input
+                  placeholder="Telefone (ex: 11987654321)"
+                  value={customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value)}
                 />
               </div>
 
@@ -420,22 +533,49 @@ export default function EstablishmentOrdersPage({
                 <div className="grid grid-cols-3 gap-2">
                   <Input
                     placeholder="CEP"
-                    value={cep}
-                    onChange={(e) => setCep(e.target.value)}
+                    value={zipCode}
+                    onChange={(e) => setZipCode(e.target.value)}
                     className="col-span-1"
                   />
                   <Input
-                    placeholder="Endereço completo"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Rua"
+                    value={street}
+                    onChange={(e) => setStreet(e.target.value)}
                     className="col-span-2"
                   />
                 </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    placeholder="Número"
+                    value={addressNumber}
+                    onChange={(e) => setAddressNumber(e.target.value)}
+                  />
+                  <Input
+                    placeholder="Complemento (opcional)"
+                    value={complement}
+                    onChange={(e) => setComplement(e.target.value)}
+                  />
+                </div>
                 <Input
-                  placeholder="Número"
-                  value={addressNumber}
-                  onChange={(e) => setAddressNumber(e.target.value)}
+                  placeholder="Bairro"
+                  value={neighborhood}
+                  onChange={(e) => setNeighborhood(e.target.value)}
                 />
+                <div className="grid grid-cols-3 gap-2">
+                  <Input
+                    placeholder="Cidade"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    className="col-span-2"
+                  />
+                  <Input
+                    placeholder="UF"
+                    value={state}
+                    onChange={(e) => setState(e.target.value.toUpperCase())}
+                    maxLength={2}
+                    className="col-span-1"
+                  />
+                </div>
               </div>
 
               {/* Forma de Pagamento */}
@@ -464,14 +604,22 @@ export default function EstablishmentOrdersPage({
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setIsManualOrderDialogOpen(false)}
+                  onClick={() => {
+                    setIsManualOrderDialogOpen(false)
+                    resetManualOrderForm()
+                  }}
+                  disabled={createManualOrderMutation.isPending}
                 >
                   Cancelar
                 </Button>
                 <Button
                   type="button"
                   onClick={handleSubmitManualOrder}
+                  disabled={createManualOrderMutation.isPending}
                 >
+                  {createManualOrderMutation.isPending && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
                   Criar Pedido
                 </Button>
               </div>

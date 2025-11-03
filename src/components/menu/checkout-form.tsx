@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Separator } from '@/components/ui/separator'
-import { User, MapPin, CreditCard, Loader2 } from 'lucide-react'
+import { User, MapPin, CreditCard, Loader2, Store, Truck } from 'lucide-react'
 
 interface CheckoutFormProps {
   onSubmit: (data: any) => void
@@ -22,6 +22,7 @@ interface CheckoutFormProps {
 }
 
 export function CheckoutForm({ onSubmit, isSubmitting }: CheckoutFormProps) {
+  const [deliveryType, setDeliveryType] = useState<'delivery' | 'pickup'>('delivery')
   const [formData, setFormData] = useState({
     customer: {
       name: '',
@@ -38,6 +39,7 @@ export function CheckoutForm({ onSubmit, isSubmitting }: CheckoutFormProps) {
       zipCode: '',
     },
     paymentMethod: '',
+    deliveryType: 'delivery' as 'delivery' | 'pickup',
   })
 
   const handleInputChange = (field: string, value: string) => {
@@ -58,24 +60,42 @@ export function CheckoutForm({ onSubmit, isSubmitting }: CheckoutFormProps) {
     }
   }
 
+  const handleDeliveryTypeChange = (type: 'delivery' | 'pickup') => {
+    setDeliveryType(type)
+    setFormData((prev) => ({
+      ...prev,
+      deliveryType: type,
+    }))
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     onSubmit(formData)
   }
 
   const isFormValid = () => {
-    return (
+    const customerValid =
       formData.customer.name &&
       formData.customer.email &&
-      formData.customer.phone &&
+      formData.customer.phone
+
+    const paymentValid = formData.paymentMethod
+
+    // Se for retirada, endereço não é obrigatório
+    if (deliveryType === 'pickup') {
+      return customerValid && paymentValid
+    }
+
+    // Se for entrega, endereço é obrigatório
+    const addressValid =
       formData.address.street &&
       formData.address.number &&
       formData.address.neighborhood &&
       formData.address.city &&
       formData.address.state &&
-      formData.address.zipCode &&
-      formData.paymentMethod
-    )
+      formData.address.zipCode
+
+    return customerValid && addressValid && paymentValid
   }
 
   return (
@@ -134,14 +154,63 @@ export function CheckoutForm({ onSubmit, isSubmitting }: CheckoutFormProps) {
         </CardContent>
       </Card>
 
-      {/* Endereço de Entrega */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MapPin className="h-5 w-5" />
-            Endereço de Entrega
-          </CardTitle>
+          <CardTitle className="text-base sm:text-lg">Tipo de Recebimento</CardTitle>
         </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+            <button
+              type="button"
+              onClick={() => handleDeliveryTypeChange('delivery')}
+              className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all sm:gap-3 sm:p-6 ${
+                deliveryType === 'delivery'
+                  ? 'border-blue-600 bg-blue-50 text-blue-700'
+                  : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+              }`}
+            >
+              <Truck className={`h-8 w-8 sm:h-10 sm:w-10 ${
+                deliveryType === 'delivery' ? 'text-blue-600' : 'text-gray-400'
+              }`} />
+              <div className="text-center">
+                <h3 className="text-sm font-semibold sm:text-base">Entrega</h3>
+                <p className="mt-1 text-xs text-gray-600 sm:text-sm">
+                  Receba em seu endereço
+                </p>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleDeliveryTypeChange('pickup')}
+              className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all sm:gap-3 sm:p-6 ${
+                deliveryType === 'pickup'
+                  ? 'border-blue-600 bg-blue-50 text-blue-700'
+                  : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+              }`}
+            >
+              <Store className={`h-8 w-8 sm:h-10 sm:w-10 ${
+                deliveryType === 'pickup' ? 'text-blue-600' : 'text-gray-400'
+              }`} />
+              <div className="text-center">
+                <h3 className="text-sm font-semibold sm:text-base">Retirada</h3>
+                <p className="mt-1 text-xs text-gray-600 sm:text-sm">
+                  Retire no estabelecimento
+                </p>
+              </div>
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {deliveryType === 'delivery' && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5" />
+              Endereço de Entrega
+            </CardTitle>
+          </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div className="space-y-2 md:col-span-2">
@@ -234,9 +303,9 @@ export function CheckoutForm({ onSubmit, isSubmitting }: CheckoutFormProps) {
             </div>
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      )}
 
-      {/* Forma de Pagamento */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -270,7 +339,6 @@ export function CheckoutForm({ onSubmit, isSubmitting }: CheckoutFormProps) {
 
       <Separator />
 
-      {/* Botão de Finalizar */}
       <div className="flex justify-end">
         <Button
           type="submit"

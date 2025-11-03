@@ -55,15 +55,19 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
     setIsSubmitting(true)
 
     try {
-      const orderData = {
+      const orderData: any = {
         products: items.map((item) => ({
           id: item.product.id,
           quantity: item.quantity,
         })),
         totalPrice: totalPrice(),
         paymentMethod: formData.paymentMethod,
-        address: formData.address,
+        deliveryType: formData.deliveryType || 'delivery',
         customer: formData.customer,
+      }
+
+      if (formData.deliveryType === 'delivery') {
+        orderData.address = formData.address
       }
 
       await createOrderMutation.mutateAsync(orderData)
@@ -113,7 +117,6 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        {/* Formulário de checkout */}
         <div className="lg:col-span-2">
           <CheckoutForm
             onSubmit={handleSubmit}
@@ -121,7 +124,6 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
           />
         </div>
 
-        {/* Resumo do pedido */}
         <div className="lg:col-span-1">
           <Card>
             <CardHeader>

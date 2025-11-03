@@ -13,8 +13,6 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from 'sonner'
 import {
@@ -26,6 +24,7 @@ import {
   Save,
   X,
   Loader2,
+  Clock,
 } from 'lucide-react'
 import {
   Dialog,
@@ -34,13 +33,44 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
+import type {
+  BusinessHoursResponse,
+  EstablishmentAddressResponse,
+} from '@/lib/api/types'
+
+const DAYS_OF_WEEK = [
+  { value: 'MONDAY', label: 'Segunda-feira' },
+  { value: 'TUESDAY', label: 'Terça-feira' },
+  { value: 'WEDNESDAY', label: 'Quarta-feira' },
+  { value: 'THURSDAY', label: 'Quinta-feira' },
+  { value: 'FRIDAY', label: 'Sexta-feira' },
+  { value: 'SATURDAY', label: 'Sábado' },
+  { value: 'SUNDAY', label: 'Domingo' },
+] as const
 
 export default function AccountPage() {
   const queryClient = useQueryClient()
   const [isEditing, setIsEditing] = useState(false)
   const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false)
-  const [editingAddress, setEditingAddress] = useState<any>(null)
+  const [editingAddress, setEditingAddress] =
+    useState<EstablishmentAddressResponse | null>(null)
+  const [editingBusinessHours, setEditingBusinessHours] = useState<
+    BusinessHoursResponse[]
+  >([])
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [addressToDelete, setAddressToDelete] = useState<string | null>(null)
 
   const [formData, setFormData] = useState({
     name: '',
@@ -73,6 +103,12 @@ export default function AccountPage() {
     queryFn: establishmentApi.getAddresses,
   })
 
+  useEffect(() => {
+    if (establishment?.businessHours) {
+      setEditingBusinessHours(establishment.businessHours)
+    }
+  }, [establishment?.businessHours])
+
   const updateMutation = useMutation({
     mutationFn: establishmentApi.update,
     onSuccess: () => {
@@ -80,7 +116,7 @@ export default function AccountPage() {
       setIsEditing(false)
       queryClient.invalidateQueries({ queryKey: ['establishment-me'] })
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(
         'Erro ao atualizar estabelecimento: ' +
           (error.message || 'Erro desconhecido'),
@@ -105,7 +141,7 @@ export default function AccountPage() {
       })
       queryClient.invalidateQueries({ queryKey: ['establishment-addresses'] })
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(
         'Erro ao criar endereço: ' + (error.message || 'Erro desconhecido'),
       )
@@ -113,14 +149,30 @@ export default function AccountPage() {
   })
 
   const updateAddressMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) =>
-      establishmentApi.updateAddress(id, data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string
+      data: Partial<EstablishmentAddressResponse>
+    }) => establishmentApi.updateAddress(id, data),
     onSuccess: () => {
       toast.success('Endereço atualizado com sucesso!')
+      setIsAddressDialogOpen(false)
       setEditingAddress(null)
+      setAddressFormData({
+        street: '',
+        number: '',
+        complement: '',
+        neighborhood: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        isPrimary: false,
+      })
       queryClient.invalidateQueries({ queryKey: ['establishment-addresses'] })
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(
         'Erro ao atualizar endereço: ' + (error.message || 'Erro desconhecido'),
       )
@@ -133,9 +185,39 @@ export default function AccountPage() {
       toast.success('Endereço removido com sucesso!')
       queryClient.invalidateQueries({ queryKey: ['establishment-addresses'] })
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(
         'Erro ao remover endereço: ' + (error.message || 'Erro desconhecido'),
+      )
+    },
+  })
+
+  const updateBusinessHoursIsOpenMutation = useMutation({
+    mutationFn: establishmentApi.updateBusinessHoursIsOpen,
+    onSuccess: () => {
+      toast.success('Status atualizado com sucesso!')
+      queryClient.invalidateQueries({
+        queryKey: ['establishment-me'],
+      })
+    },
+    onError: (error: Error) => {
+      toast.error(
+        'Erro ao atualizar status: ' + (error.message || 'Erro desconhecido'),
+      )
+    },
+  })
+
+  const bulkUpdateBusinessHoursMutation = useMutation({
+    mutationFn: establishmentApi.bulkUpdateBusinessHours,
+    onSuccess: () => {
+      toast.success('Horários atualizados com sucesso!')
+      queryClient.invalidateQueries({
+        queryKey: ['establishment-me'],
+      })
+    },
+    onError: (error: Error) => {
+      toast.error(
+        'Erro ao atualizar horários: ' + (error.message || 'Erro desconhecido'),
       )
     },
   })
@@ -167,7 +249,7 @@ export default function AccountPage() {
     }
   }
 
-  const handleEditAddress = (address: any) => {
+  const handleEditAddress = (address: EstablishmentAddressResponse) => {
     setEditingAddress(address)
     setAddressFormData({
       street: address.street,
@@ -179,12 +261,117 @@ export default function AccountPage() {
       zipCode: address.zipCode,
       isPrimary: address.isPrimary,
     })
+    setIsAddressDialogOpen(true)
   }
 
   const handleDeleteAddress = (id: string) => {
-    if (confirm('Tem certeza que deseja remover este endereço?')) {
-      deleteAddressMutation.mutate(id)
+    setAddressToDelete(id)
+    setDeleteDialogOpen(true)
+  }
+
+  const confirmDeleteAddress = () => {
+    if (addressToDelete) {
+      deleteAddressMutation.mutate(addressToDelete)
+      setDeleteDialogOpen(false)
+      setAddressToDelete(null)
     }
+  }
+
+  const handleToggleBusinessHourIsOpen = (
+    dayOfWeek: BusinessHoursResponse['dayOfWeek'],
+    isOpen: boolean,
+  ) => {
+    // Atualiza estado local imediatamente
+    setEditingBusinessHours((prev) => {
+      const existing = prev.find((bh) => bh.dayOfWeek === dayOfWeek)
+
+      if (existing) {
+        return prev.map((bh) =>
+          bh.dayOfWeek === dayOfWeek ? { ...bh, isOpen } : bh,
+        )
+      } else {
+        // Adiciona novo horário
+        return [
+          ...prev,
+          {
+            dayOfWeek,
+            openAt: '08:00',
+            closeAt: '18:00',
+            isOpen,
+            id: '',
+            establishmentId: '',
+            createdAt: '',
+            updatedAt: '',
+          },
+        ]
+      }
+    })
+
+    // Chama API
+    updateBusinessHoursIsOpenMutation.mutate({ dayOfWeek, isOpen })
+  }
+
+  const handleUpdateBusinessHourTime = (
+    dayOfWeek: BusinessHoursResponse['dayOfWeek'],
+    field: 'openAt' | 'closeAt',
+    value: string,
+  ) => {
+    setEditingBusinessHours((prev) => {
+      const existing = prev.find((bh) => bh.dayOfWeek === dayOfWeek)
+
+      if (existing) {
+        // Atualiza existente
+        return prev.map((bh) =>
+          bh.dayOfWeek === dayOfWeek ? { ...bh, [field]: value } : bh,
+        )
+      } else {
+        // Adiciona novo
+        return [
+          ...prev,
+          {
+            dayOfWeek,
+            openAt: field === 'openAt' ? value : '08:00',
+            closeAt: field === 'closeAt' ? value : '18:00',
+            isOpen: false,
+            id: '',
+            establishmentId: '',
+            createdAt: '',
+            updatedAt: '',
+          },
+        ]
+      }
+    })
+  }
+
+  const handleSaveBusinessHours = () => {
+    // Garante que todos os 7 dias sejam enviados
+    const allDaysBusinessHours = DAYS_OF_WEEK.map(({ value }) => {
+      const existing = editingBusinessHours.find((bh) => bh.dayOfWeek === value)
+      return {
+        dayOfWeek: value,
+        openAt: existing?.openAt || '08:00',
+        closeAt: existing?.closeAt || '18:00',
+        isOpen: existing?.isOpen || false,
+      }
+    })
+
+    const payload = {
+      businessHours: allDaysBusinessHours,
+    }
+    bulkUpdateBusinessHoursMutation.mutate(payload)
+  }
+
+  const handleCreateInitialBusinessHours = () => {
+    const initialBusinessHours = DAYS_OF_WEEK.map(({ value }) => ({
+      dayOfWeek: value,
+      openAt: '08:00',
+      closeAt: '18:00',
+      isOpen: value !== 'SUNDAY', // Domingo fechado por padrão
+    }))
+
+    bulkUpdateBusinessHoursMutation.mutate({
+      businessHours: initialBusinessHours,
+    })
   }
 
   if (isLoading) {
@@ -345,7 +532,22 @@ export default function AccountPage() {
               </div>
               <Dialog
                 open={isAddressDialogOpen}
-                onOpenChange={setIsAddressDialogOpen}
+                onOpenChange={(open) => {
+                  setIsAddressDialogOpen(open)
+                  if (!open) {
+                    setEditingAddress(null)
+                    setAddressFormData({
+                      street: '',
+                      number: '',
+                      complement: '',
+                      neighborhood: '',
+                      city: '',
+                      state: '',
+                      zipCode: '',
+                      isPrimary: false,
+                    })
+                  }
+                }}
               >
                 <DialogTrigger asChild>
                   <Button size="sm">
@@ -564,6 +766,7 @@ export default function AccountPage() {
                           size="sm"
                           variant="ghost"
                           onClick={() => handleEditAddress(address)}
+                          aria-label="Editar endereço"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -572,8 +775,13 @@ export default function AccountPage() {
                           variant="ghost"
                           onClick={() => handleDeleteAddress(address.id)}
                           disabled={deleteAddressMutation.isPending}
+                          aria-label="Excluir endereço"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          {deleteAddressMutation.isPending ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
                         </Button>
                       </div>
                     </div>
@@ -597,7 +805,184 @@ export default function AccountPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* Horários de Funcionamento */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Horários de Funcionamento
+            </CardTitle>
+            <CardDescription>
+              Configure os dias e horários de atendimento do seu estabelecimento
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+                  <Skeleton
+                    key={i}
+                    className="h-16"
+                  />
+                ))}
+              </div>
+            ) : establishment?.businessHours !== undefined ? (
+              <div className="space-y-4">
+                {DAYS_OF_WEEK.map(({ value, label }) => {
+                  const businessHour = editingBusinessHours.find(
+                    (bh) => bh.dayOfWeek === value,
+                  )
+
+                  // Se não existe, criar um temporário
+                  const currentHour = businessHour || {
+                    dayOfWeek: value,
+                    openAt: '08:00',
+                    closeAt: '18:00',
+                    isOpen: false,
+                  }
+
+                  return (
+                    <div
+                      key={value}
+                      className="rounded-lg border p-4"
+                    >
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center space-x-2">
+                            <Switch
+                              checked={currentHour.isOpen}
+                              onCheckedChange={(checked: boolean) =>
+                                handleToggleBusinessHourIsOpen(value, checked)
+                              }
+                              disabled={
+                                updateBusinessHoursIsOpenMutation.isPending
+                              }
+                            />
+                            <Label className="min-w-[140px] font-medium">
+                              {label}
+                            </Label>
+                          </div>
+
+                          {currentHour.isOpen && (
+                            <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2">
+                                <Label
+                                  htmlFor={`${value}-openAt`}
+                                  className="text-muted-foreground text-sm"
+                                >
+                                  Abre:
+                                </Label>
+                                <Input
+                                  id={`${value}-openAt`}
+                                  type="time"
+                                  value={currentHour.openAt}
+                                  onChange={(e) =>
+                                    handleUpdateBusinessHourTime(
+                                      value,
+                                      'openAt',
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="w-32"
+                                />
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Label
+                                  htmlFor={`${value}-closeAt`}
+                                  className="text-muted-foreground text-sm"
+                                >
+                                  Fecha:
+                                </Label>
+                                <Input
+                                  id={`${value}-closeAt`}
+                                  type="time"
+                                  value={currentHour.closeAt}
+                                  onChange={(e) =>
+                                    handleUpdateBusinessHourTime(
+                                      value,
+                                      'closeAt',
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="w-32"
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {!currentHour.isOpen && (
+                          <Badge variant="secondary">Fechado</Badge>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button
+                    onClick={handleSaveBusinessHours}
+                    disabled={bulkUpdateBusinessHoursMutation.isPending}
+                  >
+                    {bulkUpdateBusinessHoursMutation.isPending ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Save className="mr-2 h-4 w-4" />
+                    )}
+                    Salvar Horários
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="py-8 text-center">
+                <Clock className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+                <h3 className="mb-2 text-lg font-semibold">
+                  Nenhum horário configurado
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  Configure os horários de funcionamento do seu estabelecimento
+                </p>
+                <Button
+                  onClick={handleCreateInitialBusinessHours}
+                  disabled={bulkUpdateBusinessHoursMutation.isPending}
+                >
+                  {bulkUpdateBusinessHoursMutation.isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Plus className="mr-2 h-4 w-4" />
+                  )}
+                  Configurar Horários
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
+
+      <AlertDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja remover este endereço? Esta ação não pode
+              ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteAddress}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

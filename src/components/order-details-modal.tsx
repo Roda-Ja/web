@@ -22,6 +22,7 @@ import {
   DollarSign,
   Loader2,
   MessageCircle,
+  Printer,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -111,6 +112,10 @@ export function OrderDetailsModal({
     }
   }
 
+  const handlePrint = () => {
+    window.print()
+  }
+
   return (
     <Dialog
       open={isOpen}
@@ -118,10 +123,23 @@ export function OrderDetailsModal({
     >
       <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
-            Detalhes do Pedido
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Detalhes do Pedido
+            </DialogTitle>
+            {orderDetails && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePrint}
+                className="print:hidden gap-2"
+              >
+                <Printer className="h-4 w-4" />
+                Imprimir
+              </Button>
+            )}
+          </div>
         </DialogHeader>
 
         {isLoading && (
@@ -149,7 +167,6 @@ export function OrderDetailsModal({
 
         {orderDetails && (
           <div className="space-y-6">
-            {/* Informações Básicas */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">
@@ -160,7 +177,7 @@ export function OrderDetailsModal({
                 </Badge>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="flex items-center gap-3">
                   <DollarSign className="h-4 w-4 text-green-600" />
                   <div>
@@ -180,12 +197,31 @@ export function OrderDetailsModal({
                     </p>
                   </div>
                 </div>
+
+                <div className="flex items-center gap-3">
+                  {orderDetails.deliveryType === 'pickup' ? (
+                    <>
+                      <Building2 className="h-4 w-4 text-purple-600" />
+                      <div>
+                        <p className="text-sm text-gray-600">Tipo de Recebimento</p>
+                        <p className="font-medium text-purple-600">Retirada</p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <MapPin className="h-4 w-4 text-orange-600" />
+                      <div>
+                        <p className="text-sm text-gray-600">Tipo de Recebimento</p>
+                        <p className="font-medium text-orange-600">Entrega</p>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 
             <Separator />
 
-            {/* Status do Pagamento e Entrega */}
             <div className="space-y-4">
               <h4 className="font-semibold">Status</h4>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -233,9 +269,46 @@ export function OrderDetailsModal({
 
             <Separator />
 
-            {/* Grid de Cards */}
+            {orderDetails.products && orderDetails.products.length > 0 && (
+              <>
+                <div className="space-y-4">
+                  <h4 className="font-semibold">Produtos do Pedido</h4>
+                  <div className="space-y-3">
+                    {orderDetails.products.map((product, index) => (
+                      <div
+                        key={product.id + index}
+                        className="flex items-center gap-3 rounded-lg border bg-gray-50 p-3"
+                      >
+                        {product.imageUrl && (
+                          <img
+                            src={product.imageUrl}
+                            alt={product.name}
+                            className="h-14 w-14 rounded-md object-cover"
+                          />
+                        )}
+                        <div className="flex-1">
+                          <h5 className="font-medium">{product.name}</h5>
+                          <p className="text-sm text-gray-600">
+                            Quantidade: {product.quantity}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-gray-600">
+                            R$ {product.price.toFixed(2)}
+                          </p>
+                          <p className="font-semibold text-blue-600">
+                            R$ {(product.price * product.quantity).toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <Separator />
+              </>
+            )}
+
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              {/* Informações do Cliente */}
               {orderDetails.customer && (
                 <div className="flex h-full flex-col space-y-3">
                   <div className="flex items-center justify-between">
@@ -290,7 +363,6 @@ export function OrderDetailsModal({
                 </div>
               )}
 
-              {/* Endereço de Entrega */}
               {orderDetails.address && (
                 <div className="flex h-full flex-col space-y-3">
                   <h4 className="flex items-center gap-2 text-sm font-semibold">
@@ -320,7 +392,6 @@ export function OrderDetailsModal({
                 </div>
               )}
 
-              {/* Informações do Estabelecimento */}
               {orderDetails.establishment && (
                 <div className="flex h-full flex-col space-y-3">
                   <h4 className="flex items-center gap-2 text-sm font-semibold">
@@ -348,7 +419,6 @@ export function OrderDetailsModal({
                 </div>
               )}
 
-              {/* Datas */}
               <div className="flex h-full flex-col space-y-3">
                 <h4 className="flex items-center gap-2 text-sm font-semibold">
                   <Calendar className="h-4 w-4" />
@@ -396,6 +466,139 @@ export function OrderDetailsModal({
                     </div>
                   )}
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {orderDetails && (
+          <div className="hidden print:block">
+            <style jsx global>{`
+              @media print {
+                * {
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                }
+                body * {
+                  visibility: hidden;
+                }
+                .print-content,
+                .print-content * {
+                  visibility: visible;
+                }
+                .print-content {
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                  width: 100%;
+                  max-width: 80mm;
+                  padding: 10mm;
+                  font-family: 'Courier New', Courier, monospace;
+                  font-size: 12px;
+                  line-height: 1.4;
+                  color: #000;
+                  background: #fff;
+                }
+                .print-content h1 {
+                  font-size: 18px;
+                  margin: 0;
+                }
+                .print-content p {
+                  margin: 2px 0;
+                }
+                @page {
+                  size: 80mm auto;
+                  margin: 0;
+                }
+              }
+            `}</style>
+            
+            <div className="print-content">
+              <div className="text-center border-b-2 border-black pb-3 mb-3">
+                <h1 className="text-xl font-bold">
+                  {orderDetails.establishment?.name || 'Estabelecimento'}
+                </h1>
+                <p className="text-sm">Comprovante de Pedido</p>
+              </div>
+
+              <div className="mb-4">
+                <p className="font-bold text-lg">
+                  PEDIDO #{orderDetails.id.slice(0, 8).toUpperCase()}
+                </p>
+                <p className="text-xs">
+                  {formatDate(orderDetails.createdAt || orderDetails.customer?.createdAt)}
+                </p>
+              </div>
+
+              <div className="mb-4 border-t border-dashed border-gray-400 pt-3">
+                <p className="font-bold mb-1">CLIENTE:</p>
+                <p>{orderDetails.customer?.name}</p>
+                {orderDetails.customer?.phone && (
+                  <p className="text-sm">Tel: {orderDetails.customer.phone}</p>
+                )}
+              </div>
+
+              {orderDetails.products && orderDetails.products.length > 0 && (
+                <div className="mb-4 border-t border-dashed border-gray-400 pt-3">
+                  <p className="font-bold mb-2">PRODUTOS:</p>
+                  {orderDetails.products.map((product, index) => (
+                    <div key={product.id + index} className="mb-2">
+                      <div className="flex justify-between">
+                        <span>
+                          {product.quantity}x {product.name}
+                        </span>
+                        <span>R$ {(product.price * product.quantity).toFixed(2)}</span>
+                      </div>
+                      <div className="text-xs text-gray-600 ml-4">
+                        Unit: R$ {product.price.toFixed(2)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="border-t-2 border-black pt-2 mb-4">
+                <div className="flex justify-between font-bold text-lg">
+                  <span>TOTAL:</span>
+                  <span>R$ {orderDetails.totalPrice.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="mb-4 border-t border-dashed border-gray-400 pt-3">
+                <p className="font-bold mb-1">FORMA DE PAGAMENTO:</p>
+                <p>{getPaymentMethodText(orderDetails.paymentMethod)}</p>
+                <p className="text-xs">Status: {getStatusText(orderDetails.paymentStatus)}</p>
+              </div>
+
+              <div className="mb-4 border-t border-dashed border-gray-400 pt-3">
+                <p className="font-bold mb-1">TIPO DE RECEBIMENTO:</p>
+                <p className="font-semibold">
+                  {orderDetails.deliveryType === 'pickup' ? '⬆️ RETIRADA NO LOCAL' : '🚚 ENTREGA'}
+                </p>
+              </div>
+
+              {orderDetails.deliveryType !== 'pickup' && orderDetails.address && (
+                <div className="mb-4 border-t border-dashed border-gray-400 pt-3">
+                  <p className="font-bold mb-1">ENDEREÇO DE ENTREGA:</p>
+                  <p>
+                    {orderDetails.address.street}, {orderDetails.address.number}
+                  </p>
+                  {orderDetails.address.complement && (
+                    <p className="text-sm">{orderDetails.address.complement}</p>
+                  )}
+                  <p className="text-sm">{orderDetails.address.neighborhood}</p>
+                  <p className="text-sm">
+                    {orderDetails.address.city} - {orderDetails.address.state}
+                  </p>
+                  <p className="text-sm">CEP: {orderDetails.address.zipCode}</p>
+                </div>
+              )}
+
+              <div className="text-center border-t-2 border-black pt-3 mt-4 text-xs">
+                <p>Obrigado pela preferência!</p>
+                <p className="mt-1">
+                  Impresso em: {new Date().toLocaleString('pt-BR')}
+                </p>
               </div>
             </div>
           </div>

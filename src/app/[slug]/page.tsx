@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import { ProductCard } from '@/components/menu/product-card'
 import { PublicCart } from '@/components/menu/public-cart'
 import { Toaster } from '@/components/ui/sonner'
+import { CategoryTabs } from '@/components/menu/category-tabs'
 import {
   ProductFilters,
   type ProductFilterState,
@@ -205,6 +206,17 @@ export default function EstablishmentPage({ params }: EstablishmentPageProps) {
           </p>
         </div>
 
+        {/* Filtro de Categoria - Tabs */}
+        <div className="mb-6">
+          <CategoryTabs
+            value={filters.categoryId}
+            onChange={(categoryId) =>
+              setFilters({ ...filters, categoryId, page: 1 })
+            }
+          />
+        </div>
+
+        {/* Outros Filtros */}
         <div className="mb-6">
           <ProductFilters
             value={filters}

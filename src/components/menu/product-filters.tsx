@@ -15,7 +15,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { CategorySelect } from '@/components/menu/category-select'
 
 export type ProductFilterState = {
   page?: number
@@ -48,8 +47,6 @@ export function ProductFilters({ value, onChange }: ProductFiltersProps) {
       (value.sortOrder !== undefined && value.sortOrder !== '')
     )
       filters.push('order')
-    if (value.categoryId !== undefined && value.categoryId !== '')
-      filters.push('category')
     if (value.isActive !== undefined && value.isActive !== '')
       filters.push('status')
     if (
@@ -92,7 +89,6 @@ export function ProductFilters({ value, onChange }: ProductFiltersProps) {
     if (type === 'search') onChange({ ...value, search: undefined })
     if (type === 'order')
       onChange({ ...value, sort: undefined, sortOrder: undefined })
-    if (type === 'category') onChange({ ...value, categoryId: undefined })
     if (type === 'status') onChange({ ...value, isActive: undefined })
     if (type === 'price')
       onChange({ ...value, minPrice: undefined, maxPrice: undefined })
@@ -106,7 +102,6 @@ export function ProductFilters({ value, onChange }: ProductFiltersProps) {
     () => [
       { value: 'search', label: 'Busca' },
       { value: 'order', label: 'Ordenação' },
-      { value: 'category', label: 'Categoria' },
       { value: 'status', label: 'Status' },
       { value: 'price', label: 'Preço' },
       { value: 'created', label: 'Criado em' },
@@ -189,20 +184,6 @@ export function ProductFilters({ value, onChange }: ProductFiltersProps) {
                   <option value="desc">Desc</option>
                 </select>
               </div>
-            )}
-
-            {filter === 'category' && (
-              <CategorySelect
-                value={value.categoryId || ''}
-                onChange={(categoryId) =>
-                  onChange({
-                    ...value,
-                    categoryId: categoryId || undefined,
-                  })
-                }
-                placeholder="Todas as categorias"
-                allowEmpty={true}
-              />
             )}
 
             {filter === 'status' && (

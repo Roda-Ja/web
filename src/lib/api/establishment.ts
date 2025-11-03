@@ -4,6 +4,10 @@ import type {
   UpdateEstablishmentRequest,
   EstablishmentAddressResponse,
   CreateEstablishmentAddressRequest,
+  BusinessHoursResponse,
+  UpdateBusinessHoursRequest,
+  UpdateBusinessHoursIsOpenRequest,
+  BulkUpdateBusinessHoursRequest,
 } from './types'
 
 export const establishmentApi = {
@@ -41,5 +45,35 @@ export const establishmentApi = {
 
   async deleteAddress(id: string): Promise<void> {
     await apiClient.delete(`/establishment/address/${id}`)
+  },
+
+  async updateBusinessHours(
+    data: UpdateBusinessHoursRequest,
+  ): Promise<BusinessHoursResponse> {
+    const response = await apiClient.put(
+      '/establishment/update/business-hours',
+      data,
+    )
+    return response.data
+  },
+
+  async updateBusinessHoursIsOpen(
+    data: UpdateBusinessHoursIsOpenRequest,
+  ): Promise<BusinessHoursResponse[]> {
+    const response = await apiClient.patch(
+      '/establishment/update/business-hours/is-open',
+      data,
+    )
+    return response.data
+  },
+
+  async bulkUpdateBusinessHours(
+    data: BulkUpdateBusinessHoursRequest,
+  ): Promise<BusinessHoursResponse[]> {
+    const response = await apiClient.post(
+      '/establishment/update/business-hours/bulk',
+      data,
+    )
+    return response.data
   },
 }

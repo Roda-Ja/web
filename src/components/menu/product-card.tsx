@@ -23,6 +23,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import { useCartStore } from '@/lib/stores/cart-store'
+import { useManualOrderCartStore } from '@/lib/stores/manual-order-cart-store'
 import { useAuthStore } from '@/lib/stores/auth-store'
 import { toast } from 'sonner'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -54,6 +55,7 @@ type ProductCardProps = {
   onEdit?: (product: Product) => void
   onDelete?: (productId: string) => void
   showAdminControls?: boolean
+  useManualCart?: boolean
 }
 
 export function ProductCard({
@@ -62,12 +64,20 @@ export function ProductCard({
   onEdit,
   onDelete,
   showAdminControls = false,
+  useManualCart = false,
 }: ProductCardProps) {
   const isAvailable = product.isAvailable
-  const addItem = useCartStore((s) => s.addItem)
-  const increase = useCartStore((s) => s.increase)
-  const decrease = useCartStore((s) => s.decrease)
-  const items = useCartStore((s) => s.items)
+  
+  // Escolhe o store baseado na prop useManualCart
+  const publicCart = useCartStore()
+  const manualCart = useManualOrderCartStore()
+  
+  const cart = useManualCart ? manualCart : publicCart
+  const addItem = cart.addItem
+  const increase = cart.increase
+  const decrease = cart.decrease
+  const items = cart.items
+  
   const isMaster = useAuthStore((state) => state.isMaster())
   const isEstablishmentAdmin = useAuthStore((state) =>
     state.isEstablishmentAdmin(),

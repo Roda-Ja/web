@@ -209,7 +209,8 @@ export interface CreateOrderRequest {
   }>
   totalPrice: number
   paymentMethod: 'CREDIT_CARD' | 'DEBIT_CARD' | 'PIX' | 'MONEY'
-  address: {
+  deliveryType?: 'delivery' | 'pickup'
+  address?: {
     id?: string
     street: string
     number: string
@@ -281,6 +282,7 @@ export interface EstablishmentMeResponse {
     createdAt: string
     updatedAt: string
   }>
+  businessHours?: BusinessHoursResponse[]
   createdAt: string
   updatedAt: string
   entity: 'ESTABLISHMENT'
@@ -306,6 +308,38 @@ export interface EstablishmentAddressResponse {
   updatedAt: string
 }
 
+export interface CreateEstablishmentAddressRequest {
+  street: string
+  number: string
+  complement?: string
+  neighborhood: string
+  city: string
+  state: string
+  zipCode: string
+  isPrimary: boolean
+}
+
+export interface UpdateBusinessHoursRequest {
+  dayOfWeek: 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY'
+  openAt: string
+  closeAt: string
+  isOpen: boolean
+}
+
+export interface UpdateBusinessHoursIsOpenRequest {
+  dayOfWeek: 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY'
+  isOpen: boolean
+}
+
+export interface BulkUpdateBusinessHoursRequest {
+  businessHours: Array<{
+    dayOfWeek: 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY'
+    openAt: string
+    closeAt: string
+    isOpen: boolean
+  }>
+}
+
 export interface UpdatePaymentStatusRequest {
   paymentStatus: 'PENDING' | 'PAID' | 'CANCELLED'
 }
@@ -318,6 +352,14 @@ export interface UpdateApprovalStatusRequest {
   approvalStatus: 'PENDING' | 'APPROVED' | 'REJECTED'
 }
 
+export interface OrderProductItem {
+  id: string
+  name: string
+  quantity: number
+  price: number
+  imageUrl?: string
+}
+
 export interface OrderDetailsResponse {
   id: string
   status: 'PENDING' | 'PAID' | 'CANCELLED'
@@ -326,13 +368,15 @@ export interface OrderDetailsResponse {
   paymentStatus: 'PENDING' | 'PAID' | 'CANCELLED'
   deliveryStatus: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
   deliveredAt: string | null
+  deliveryType?: 'delivery' | 'pickup'
   approvalStatus?: 'PENDING' | 'APPROVED' | 'REJECTED'
   establishmentId?: string
   addressId?: string
   customerId?: string
   establishment: OrderEstablishmentResponse
   customer: OrderCustomerResponse
-  address: OrderAddressResponse
+  address?: OrderAddressResponse
+  products?: OrderProductItem[]
   createdAt?: string
   updatedAt?: string
 }
